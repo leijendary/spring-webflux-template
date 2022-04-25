@@ -1,0 +1,21 @@
+debug: true
+
+logging:
+  level:
+    root: DEBUG
+    liquibase:
+      hub: DEBUG
+    org:
+      apache:
+        kafka: INFO
+      springframework:
+        data:
+          elasticsearch:
+            support:
+              VersionInfo: DEBUG
+        r2dbc: DEBUG
+    io:
+      r2dbc:
+        postgresql:
+          QUERY: DEBUG
+          PARAM: DEBUG

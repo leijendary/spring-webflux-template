@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-webflux-config
+  namespace: template
+data:
+  SPRING_R2DBC_PRIMARY_NAME: spring_microservice
+  SPRING_R2DBC_PRIMARY_URL: "r2dbc:postgresql://postgres-service.database.svc.cluster.local:5432"
+  SPRING_R2DBC_PRIMARY_USERNAME: postgres
+  SPRING_R2DBC_READONLY_NAME: spring_microservice
+  SPRING_R2DBC_READONLY_URL: "r2dbc:postgresql://postgres-service.database.svc.cluster.local:5432"
+  SPRING_R2DBC_READONLY_USERNAME: postgres
+  SPRING_LIQUIBASE_URL: jdbc:postgresql://postgres-service.database.svc.cluster.local:5432/spring_microservice
+  SPRING_LIQUIBASE_USER: postgres
+  SPRING_PROFILES_ACTIVE: dev,aws
+  CLOUD_AWS_CREDENTIALS_USE_DEFAULT_AWS_CREDENTIALS_CHAIN: "false"
+  CLOUD_AWS_REGION_STATIC: me-south-1
+  CLOUD_AWS_REGION_USE_DEFAULT_AWS_REGION_CHAIN: "false"
+  CLOUD_AWS_STACK_AUTO: "false"
+  SPRING_ELASTICSEARCH_URIS: http://elasticsearch-service.elasticstack.svc.cluster.local:9200
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-service.kafka.svc.cluster.local:9092
+  SPRING_REDIS_HOST: redis-service.cache.svc.cluster.local
+  SPRING_REDIS_PORT: "6379"
+  AWS_EC2_METADATA_DISABLED: "true"

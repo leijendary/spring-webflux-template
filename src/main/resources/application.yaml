@@ -1,0 +1,169 @@
+info:
+  app:
+    organization: leijendary
+    group: ${group}
+    name: ${name}
+    description: ${description}
+    version: ${version}
+
+auth:
+  anonymousUser:
+    principal: Anonymous User
+  system:
+    principal: System
+
+encrypt:
+  key:
+  salt:
+
+number:
+  scale: 2
+  round: HALF_UP
+
+retry:
+  maxAttempts: 3
+  backoff:
+    delay: 5
+    maxDelay: 20
+    multiplier: 2
+
+spring:
+  application:
+    name: \${info.app.name}
+  data:
+    elasticsearch:
+      repositories:
+        enabled: false
+    jdbc:
+      repositories:
+        enabled: false
+    redis:
+      repositories:
+        enabled: false
+    r2dbc:
+      repositories:
+        enabled: false
+  r2dbc:
+    primary:
+      name:
+      url:
+      username:
+      password:
+      pool:
+        maxSize: 20
+    readonly:
+      name:
+      url:
+      username:
+      password:
+      pool:
+        maxSize: 10
+    batch:
+      size: 1000
+  liquibase:
+    url:
+    user:
+    password:
+  devtools:
+    livereload:
+      port: 35730
+  messages:
+    basename: messages.error, messages.validation
+  cache:
+    type: redis
+    redis:
+      timeToLive: 5h
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            google:
+              - uri: https://www.google.com
+    loadbalancer:
+      retry:
+        maxRetriesOnSameServiceInstance: 3
+        retryOnAllOperations: true
+        retryableStatusCodes:
+          - 502
+          - 503
+        backoff:
+          enabled: true
+          minBackoff: \${retry.backoff.delay}ms
+          maxBackoff: \${retry.backoff.maxDelay}ms
+          jitter: \${retry.backoff.multiplier}
+    serviceRegistry:
+      autoRegistration:
+        enabled: false
+    function:
+      definition: sampleCreate;sampleUpdate;sampleDelete;sampleCreated;sampleUpdated;sampleDeleted
+    stream:
+      bindings:
+        sampleCreate-out-0:
+          destination: \${info.app.organization}.sample.create
+        sampleCreated-in-0:
+          destination: \${info.app.organization}.sample.create
+        sampleUpdate-out-0:
+          destination: \${info.app.organization}.sample.update
+        sampleUpdated-in-0:
+          destination: \${info.app.organization}.sample.update
+        sampleDelete-out-0:
+          destination: \${info.app.organization}.sample.delete
+        sampleDeleted-in-0:
+          destination: \${info.app.organization}.sample.delete
+      kafka:
+        binder:
+          autoAddPartitions: true
+        streams:
+          binder:
+            functions:
+              sampleCreate:
+                applicationId: \${info.app.name}.\${info.app.organization}.sample.create
+              sampleCreated:
+                applicationId: \${info.app.name}.\${info.app.organization}.sample.create
+              sampleUpdate:
+                applicationId: \${info.app.name}.\${info.app.organization}.sample.update
+              sampleUpdated:
+                applicationId: \${info.app.name}.\${info.app.organization}.sample.update
+              sampleDelete:
+                applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
+              sampleDeleted:
+                applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
+  elasticsearch:
+    uris:
+    connectionTimeout: 30s
+  kafka:
+    bootstrapServers:
+    producer:
+      properties:
+        spring:
+          json:
+            add:
+              type:
+                headers: false
+  redis:
+    host:
+    port:
+
+management:
+  endpoint:
+    health:
+      showDetails: ALWAYS
+
+server:
+  http2:
+    enabled: true
+  port: 80
+
+logging:
+  level:
+    liquibase:
+      hub: ERROR
+    org:
+      apache:
+        kafka: ERROR
+      springframework:
+        data:
+          elasticsearch:
+            support:
+              VersionInfo: ERROR

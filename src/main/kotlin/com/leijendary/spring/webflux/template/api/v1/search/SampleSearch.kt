@@ -8,20 +8,24 @@ import com.leijendary.spring.webflux.template.core.util.RequestContext.language
 import com.leijendary.spring.webflux.template.core.util.SearchUtil.match
 import com.leijendary.spring.webflux.template.core.util.SearchUtil.sortBuilders
 import com.leijendary.spring.webflux.template.document.SampleDocument
+import com.leijendary.spring.webflux.template.repository.SampleSearchRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder
 import org.springframework.stereotype.Service
+import reactor.kotlin.core.publisher.switchIfEmpty
 import java.util.*
 
 @Service
-class SampleSearch(private val template: ReactiveElasticsearchTemplate) {
+class SampleSearch(
+    private val sampleSearchRepository: SampleSearchRepository,
+    private val template: ReactiveElasticsearchTemplate
+) {
     companion object {
         private val MAPPER: SampleMapper = SampleMapper.INSTANCE
         private val SOURCE = listOf("search", "SampleSearch")
@@ -65,7 +69,7 @@ class SampleSearch(private val template: ReactiveElasticsearchTemplate) {
     suspend fun save(sampleResponse: SampleResponse): SampleDocument {
         val document = MAPPER.toDocument(sampleResponse)
 
-        return template
+        return sampleSearchRepository
             .save(document)
             .awaitSingle()
     }
@@ -73,16 +77,16 @@ class SampleSearch(private val template: ReactiveElasticsearchTemplate) {
     suspend fun save(sampleResponses: List<SampleResponse>): Flow<SampleDocument> {
         val list = sampleResponses.map { MAPPER.toDocument(it) }
 
-        return template
-            .saveAll(list, SampleDocument::class.java)
+        return sampleSearchRepository
+            .saveAll(list)
             .asFlow()
     }
 
     suspend fun get(id: UUID): SampleSearchResponse {
-        val document = template
-            .get(id.toString(), SampleDocument::class.java)
-            .awaitSingleOrNull()
-            ?: throw ResourceNotFoundException(SOURCE, id)
+        val document = sampleSearchRepository
+            .findById(id)
+            .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
+            .awaitSingle()
         val language = language.awaitSingle()
         val translation = document.translation(language)
 
@@ -90,17 +94,13 @@ class SampleSearch(private val template: ReactiveElasticsearchTemplate) {
     }
 
     suspend fun update(sampleResponse: SampleResponse): SampleSearchResponse {
-        var document = template
-            .get(sampleResponse.id.toString(), SampleDocument::class.java)
-            .awaitSingleOrNull()
-            ?: throw ResourceNotFoundException(SOURCE, sampleResponse.id)
-
-        MAPPER.update(sampleResponse, document)
-
-        document = template
-            .save(document)
+        val id = sampleResponse.id
+        val document = sampleSearchRepository
+            .findById(id)
+            .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
+            .doOnNext { MAPPER.update(sampleResponse, it) }
+            .flatMap { sampleSearchRepository.save(it) }
             .awaitSingle()
-
         val language = language.awaitSingle()
         val translation = document.translation(language)
 
@@ -108,13 +108,11 @@ class SampleSearch(private val template: ReactiveElasticsearchTemplate) {
     }
 
     suspend fun delete(id: UUID) {
-        val document = template
-            .get(id.toString(), SampleDocument::class.java)
-            .awaitSingleOrNull()
-            ?: throw ResourceNotFoundException(SOURCE, id)
-
-        template
-            .delete(document)
+        val document = sampleSearchRepository
+            .findById(id)
+            .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .awaitSingle()
+
+        sampleSearchRepository.delete(document)
     }
 }

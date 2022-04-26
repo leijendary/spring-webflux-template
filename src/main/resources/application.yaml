@@ -31,9 +31,6 @@ spring:
   application:
     name: \${info.app.name}
   data:
-    elasticsearch:
-      repositories:
-        enabled: false
     jdbc:
       repositories:
         enabled: false

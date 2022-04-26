@@ -12,10 +12,9 @@ import java.util.*
 
 const val HEADER_TRACE_ID = "X-Trace-ID"
 const val HEADER_USER_ID = "X-User-ID"
+val EXCHANGE_CONTEXT_KEY = ServerWebExchange::class
 
 object RequestContext {
-    val EXCHANGE_CONTEXT_KEY = ServerWebExchange::class
-
     val currentExchange: Mono<ServerWebExchange>
         get() = Mono
             .deferContextual {

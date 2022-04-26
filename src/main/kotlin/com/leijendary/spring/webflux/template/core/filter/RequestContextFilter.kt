@@ -1,6 +1,6 @@
 package com.leijendary.spring.webflux.template.core.filter
 
-import com.leijendary.spring.webflux.template.core.util.RequestContext.EXCHANGE_CONTEXT_KEY
+import com.leijendary.spring.webflux.template.core.util.EXCHANGE_CONTEXT_KEY
 import org.springframework.core.Ordered.HIGHEST_PRECEDENCE
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

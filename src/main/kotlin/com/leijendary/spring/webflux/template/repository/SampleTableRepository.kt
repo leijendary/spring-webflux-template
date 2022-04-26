@@ -1,6 +1,5 @@
 package com.leijendary.spring.webflux.template.repository
 
-import com.leijendary.spring.webflux.template.core.config.properties.AuthProperties
 import com.leijendary.spring.webflux.template.core.config.properties.R2dbcBatchProperties
 import com.leijendary.spring.webflux.template.core.data.Seek
 import com.leijendary.spring.webflux.template.core.data.Seekable
@@ -59,7 +58,6 @@ private val mapper = Function<Row, SampleTable> {
 @Repository
 class SampleTableRepository(
     private val auditorAware: ReactiveAuditorAware<String>,
-    private val authProperties: AuthProperties,
     private val dateTimeProvider: DateTimeProvider,
     private val r2dbcBatchProperties: R2dbcBatchProperties,
     private val template: R2dbcEntityTemplate

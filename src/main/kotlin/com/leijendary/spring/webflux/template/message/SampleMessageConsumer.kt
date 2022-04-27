@@ -13,8 +13,8 @@ class SampleMessageConsumer {
     private val log = logger()
 
     @Bean
-    fun sampleCreated(): Consumer<KStream<String, SampleMessage>> {
-        return Consumer<KStream<String, SampleMessage>> { stream: KStream<String, SampleMessage> ->
+    fun sampleCreated(): Consumer<KStream<String?, SampleMessage>> {
+        return Consumer<KStream<String?, SampleMessage>> { stream: KStream<String?, SampleMessage> ->
             stream.foreach { key: String?, value: SampleMessage ->
                 log.info("Created: {}, {}", key, value.toJson())
             }

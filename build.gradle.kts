@@ -1,5 +1,5 @@
 plugins {
-    id("org.springframework.boot") version "2.6.6"
+    id("org.springframework.boot") version "2.6.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.10"
     kotlin("jvm") version "1.6.10"
@@ -29,16 +29,16 @@ kapt {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-aop:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.6")
-    implementation("org.springframework.boot:spring-boot-starter-webflux:2.6.6")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-aop:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.7")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:2.6.7")
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:3.1.1")
-    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka:3.2.2")
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:3.2.2")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:3.2.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
@@ -49,15 +49,15 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.1-native-mt")
     implementation("org.liquibase:liquibase-core:4.9.1")
     implementation("org.mapstruct:mapstruct:1.4.2.Final")
-    implementation("org.springframework:spring-jdbc:5.3.18")
+    implementation("org.springframework:spring-jdbc:5.3.19")
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.6")
-    developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.6")
+    developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.7")
     kapt("org.mapstruct:mapstruct-processor:1.4.2.Final")
     runtimeOnly("io.r2dbc:r2dbc-postgresql:0.8.12.RELEASE")
-    runtimeOnly("org.postgresql:postgresql:42.3.3")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.6.6")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.6")
-    testImplementation("io.projectreactor:reactor-test:3.4.16")
+    runtimeOnly("org.postgresql:postgresql:42.3.4")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.6.7")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.7")
+    testImplementation("io.projectreactor:reactor-test:3.4.17")
 }
 
 tasks.compileKotlin {

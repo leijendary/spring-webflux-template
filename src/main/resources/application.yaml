@@ -113,6 +113,8 @@ spring:
           autoAddPartitions: true
         streams:
           binder:
+            brokers:
+            deserializationExceptionHandler: sendToDlq
             functions:
               sampleCreate:
                 applicationId: \${info.app.name}.\${info.app.organization}.sample.create
@@ -126,18 +128,19 @@ spring:
                 applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
               sampleDeleted:
                 applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
+          bindings:
+            sampleCreated-in-0:
+              consumer:
+                dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleCreated-in-0.destination}
+            sampleUpdated-in-0:
+              consumer:
+                dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleUpdated-in-0.destination}
+            sampleDeleted-in-0:
+              consumer:
+                dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleDeleted-in-0.destination}
   elasticsearch:
     uris:
-    connectionTimeout: 30s
-  kafka:
-    bootstrapServers:
-    producer:
-      properties:
-        spring:
-          json:
-            add:
-              type:
-                headers: false
+    connectionTimeout: 1m
   redis:
     host:
     port:

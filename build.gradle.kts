@@ -40,6 +40,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:3.1.1")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:3.2.2")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:3.2.2")
+    implementation("net.devh:grpc-spring-boot-starter:2.13.1.RELEASE")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.6")

@@ -77,7 +77,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: serial
+                  type: bigserial
                   autoIncrement: true
                   constraints:
                     primaryKey: true

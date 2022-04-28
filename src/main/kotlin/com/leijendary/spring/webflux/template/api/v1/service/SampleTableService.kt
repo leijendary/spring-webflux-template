@@ -8,22 +8,32 @@ import com.leijendary.spring.webflux.template.api.v1.event.SampleEvent
 import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
 import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
+import com.leijendary.spring.webflux.template.core.config.properties.R2dbcBatchProperties
 import com.leijendary.spring.webflux.template.core.data.Seek
 import com.leijendary.spring.webflux.template.core.data.Seekable
 import com.leijendary.spring.webflux.template.core.exception.ResourceNotFoundException
+import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory.Companion.readOnlyContext
+import com.leijendary.spring.webflux.template.core.factory.SeekFactory
 import com.leijendary.spring.webflux.template.repository.SampleTableRepository
 import com.leijendary.spring.webflux.template.repository.SampleTableTranslationRepository
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.collect
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
+import reactor.core.scheduler.Schedulers.parallel
+import reactor.kotlin.core.publisher.switchIfEmpty
 import java.util.*
+import java.util.UUID.randomUUID
 
 @Service
 class SampleTableService(
     private val reactiveRedisCache: ReactiveRedisCache,
+    private val r2dbcBatchProperties: R2dbcBatchProperties,
     private val sampleEvent: SampleEvent,
     private val sampleSearch: SampleSearch,
     private val sampleTableRepository: SampleTableRepository,
@@ -36,19 +46,33 @@ class SampleTableService(
     }
 
     suspend fun seek(query: String, seekable: Seekable): Seek<SampleListResponse> {
-        return sampleTableRepository
-            .seek(query, seekable)
+        val flux = SeekFactory
+            .from(seekable)
+            ?.let { sampleTableRepository.seek(query, it.createdAt, it.rowId, seekable.limit) }
+            ?: sampleTableRepository.query(query, seekable.limit)
+
+        return flux
+            .contextWrite { readOnlyContext(it) }
+            .collectList()
+            .map { SeekFactory.create(it, seekable) }
+            .awaitSingle()
             .transform { MAPPER.toListResponse(it) }
     }
 
     suspend fun create(sampleRequest: SampleRequest): SampleResponse {
         var sampleTable = MAPPER.toEntity(sampleRequest)
         var sampleTableTranslations = MAPPER.toEntity(sampleRequest.translations!!)
+        val id = randomUUID()
+
+        sampleTable.id = id
 
         transactionalOperator.executeAndAwait {
-            sampleTable = sampleTableRepository.save(sampleTable)
+            sampleTable = sampleTableRepository
+                .save(sampleTable)
+                .awaitSingle()
             sampleTableTranslations = sampleTableTranslationRepository
-                .save(sampleTable.id, sampleTableTranslations)
+                .save(id, sampleTableTranslations)
+                .asFlow()
                 .toSet(mutableSetOf())
         }
 
@@ -68,9 +92,15 @@ class SampleTableService(
             return cache
         }
 
-        val sampleTable = sampleTableRepository.get(id) ?: throw ResourceNotFoundException(SOURCE, id)
-        val sampleTableTranslations = sampleTableTranslationRepository
+        val sampleTable = sampleTableRepository
             .get(id)
+            .contextWrite { readOnlyContext(it) }
+            .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
+            .awaitSingle()
+        val sampleTableTranslations = sampleTableTranslationRepository
+            .findByReferenceId(id)
+            .contextWrite { readOnlyContext(it) }
+            .asFlow()
             .toSet(mutableSetOf())
 
         val response = MAPPER.toResponse(sampleTable)
@@ -82,19 +112,28 @@ class SampleTableService(
     }
 
     suspend fun update(id: UUID, sampleRequest: SampleRequest): SampleResponse {
-        var sampleTable = sampleTableRepository.get(id) ?: throw ResourceNotFoundException(SOURCE, id)
+        var sampleTable = sampleTableRepository
+            .get(id)
+            .contextWrite { readOnlyContext(it) }
+            .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
+            .awaitSingle()
 
         MAPPER.update(sampleRequest, sampleTable)
 
         var sampleTableTranslations = MAPPER.toEntity(sampleRequest.translations!!)
         val oldTranslations = sampleTableTranslationRepository
-            .get(id)
+            .findByReferenceId(id)
+            .contextWrite { readOnlyContext(it) }
+            .asFlow()
             .toSet(mutableSetOf())
 
         transactionalOperator.executeAndAwait {
-            sampleTable = sampleTableRepository.update(sampleTable)
+            sampleTable = sampleTableRepository
+                .save(sampleTable)
+                .awaitSingle()
             sampleTableTranslations = sampleTableTranslationRepository
-                .update(id, oldTranslations, sampleTableTranslations)
+                .save(id, oldTranslations, sampleTableTranslations)
+                .asFlow()
                 .toSet(mutableSetOf())
         }
 
@@ -107,12 +146,20 @@ class SampleTableService(
     }
 
     suspend fun delete(id: UUID) = coroutineScope {
-        val sampleTable = sampleTableRepository.get(id) ?: throw ResourceNotFoundException(SOURCE, id)
+        val sampleTable = sampleTableRepository
+            .get(id)
+            .contextWrite { readOnlyContext(it) }
+            .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
+            .awaitSingle()
 
-        sampleTableRepository.delete(id)
+        sampleTableRepository
+            .softDelete(sampleTable)
+            .awaitSingle()
 
         val sampleTableTranslations = sampleTableTranslationRepository
-            .get(id)
+            .findByReferenceId(id)
+            .contextWrite { readOnlyContext(it) }
+            .asFlow()
             .toSet(mutableSetOf())
 
         val response = MAPPER.toResponse(sampleTable)
@@ -122,17 +169,23 @@ class SampleTableService(
     }
 
     suspend fun reindex(): Int {
-        var count = 0;
+        var count = 0
 
         sampleTableRepository
-            .all()
+            .findAllByDeletedAtIsNull()
+            .buffer(r2dbcBatchProperties.size)
+            .onBackpressureBuffer()
+            .parallel()
+            .runOn(parallel())
             .collect { list ->
-                val responses = list.map {
+                val responses = list.map { sampleTable ->
                     val translations = sampleTableTranslationRepository
-                        .get(it.id)
+                        .findByReferenceId(sampleTable.id)
+                        .contextWrite { readOnlyContext(it) }
+                        .asFlow()
                         .toSet(mutableSetOf())
 
-                    val response = MAPPER.toResponse(it)
+                    val response = MAPPER.toResponse(sampleTable)
                     response.translations = MAPPER.toResponse(translations)
 
                     count++

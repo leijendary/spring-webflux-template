@@ -37,9 +37,6 @@ spring:
     redis:
       repositories:
         enabled: false
-    r2dbc:
-      repositories:
-        enabled: false
   r2dbc:
     primary:
       name:

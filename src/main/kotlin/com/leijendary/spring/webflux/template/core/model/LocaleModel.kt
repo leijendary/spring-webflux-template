@@ -6,7 +6,7 @@ import java.util.*
 
 abstract class LocaleModel : AppModel() {
     @Id
-    var id: Int = 0
+    var id: Long = 0
 
     lateinit var referenceId: UUID
     lateinit var language: String

@@ -6,11 +6,11 @@ import com.leijendary.spring.webflux.template.core.data.Seekable
 import com.leijendary.spring.webflux.template.core.extension.AnyUtil.toJson
 import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.core.extension.toClass
+import com.leijendary.spring.webflux.template.core.model.SeekModel
 import com.leijendary.spring.webflux.template.core.security.Encryption
 import com.leijendary.spring.webflux.template.core.util.SpringContext.Companion.getBean
 import java.util.Base64.getDecoder
 import java.util.Base64.getEncoder
-import java.util.function.Function
 
 private val encryption = getBean(Encryption::class)
 private val encoder = getEncoder()
@@ -20,7 +20,11 @@ class SeekFactory {
     companion object {
         private val log = logger()
 
-        fun <T> create(original: List<T>, seekable: Seekable, mapper: Function<T, Map<String, Any>>): Seek<T> {
+        fun from(seekable: Seekable): SeekToken? {
+            return seekable.nextToken?.let { decode(it) }
+        }
+
+        fun <T : SeekModel> create(original: List<T>, seekable: Seekable): Seek<T> {
             var list = original
             var size = list.size
             val limit = seekable.limit
@@ -31,8 +35,7 @@ class SeekFactory {
                 size -= 1
 
                 val last = list.last()
-                val map = mapper.apply(last)
-                val seekToken = SeekToken(map)
+                val seekToken = SeekToken(last.createdAt, last.rowId)
 
                 nextToken = encode(seekToken)
             }

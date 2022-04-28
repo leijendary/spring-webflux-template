@@ -1,15 +1,18 @@
 package com.leijendary.spring.webflux.template.model
 
+import com.leijendary.spring.webflux.template.core.model.SeekModel
 import com.leijendary.spring.webflux.template.core.model.SoftDeleteModel
-import com.leijendary.spring.webflux.template.core.model.UUIDModel
-import org.springframework.data.annotation.*
+import org.springframework.data.annotation.CreatedBy
+import org.springframework.data.annotation.LastModifiedBy
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.annotation.Version
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Table
-class SampleTable : UUIDModel(), SoftDeleteModel {
+class SampleTable : SeekModel(), SoftDeleteModel {
     @Column(value = "column_1")
     lateinit var column1: String
 
@@ -20,9 +23,6 @@ class SampleTable : UUIDModel(), SoftDeleteModel {
 
     @Version
     var version = 0
-
-    @CreatedDate
-    lateinit var createdAt: LocalDateTime
 
     @CreatedBy
     lateinit var createdBy: String

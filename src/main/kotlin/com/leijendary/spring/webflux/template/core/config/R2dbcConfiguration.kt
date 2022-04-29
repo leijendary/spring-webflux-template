@@ -44,7 +44,7 @@ class R2dbcConfiguration(
 
     @Bean
     fun auditorAware(): ReactiveAuditorAware<String> {
-        return ReactiveAuditorAware { userId.defaultIfEmpty(authProperties.anonymousUser.principal) }
+        return ReactiveAuditorAware { userId.defaultIfEmpty(authProperties.system.principal) }
     }
 
     @Bean

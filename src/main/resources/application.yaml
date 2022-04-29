@@ -110,7 +110,6 @@ spring:
           autoAddPartitions: true
         streams:
           binder:
-            brokers:
             deserializationExceptionHandler: sendToDlq
             functions:
               sampleCreate:
@@ -137,6 +136,8 @@ spring:
                 dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleDeleted-in-0.destination}
   elasticsearch:
     uris:
+  kafka:
+    bootstrapServers:
   redis:
     host:
     port:

@@ -146,6 +146,10 @@ management:
     health:
       showDetails: ALWAYS
 
+grpc:
+  server:
+    port: 90
+
 server:
   http2:
     enabled: true

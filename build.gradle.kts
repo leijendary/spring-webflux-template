@@ -2,7 +2,8 @@ plugins {
     id("org.springframework.boot") version "2.6.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.21"
-    kotlin("jvm") version "1.6.21"
+    id("com.google.protobuf") version "0.8.18" apply false
+    kotlin("jvm") version "1.6.21" apply false
     kotlin("kapt") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
 }
@@ -18,8 +19,12 @@ configurations {
     }
 }
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+    }
 }
 
 kapt {

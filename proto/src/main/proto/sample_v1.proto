@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package leijendary.sample.v1;
+
+option java_package = "com.leijendary.spring.webflux.template.grpc.v1";
+
+service SampleService {
+  rpc seek(SampleSeekRequest) returns (SampleSeekResponse) {}
+}
+
+message SampleSeekRequest {
+  optional string query = 1;
+  int32 limit = 2;
+  optional string nextToken = 3;
+}
+
+message SampleSeekResponse {
+  repeated SampleListResponse data = 1;
+  int32 limit = 2;
+  optional string nextToken = 3;
+}
+
+message SampleListResponse {
+  string id = 1;
+  string column1 = 2;
+  int64 column2 = 3;
+  double amount = 4;
+  string createdAt = 5;
+  string createdBy = 6;
+  string lastModifiedAt = 7;
+  string lastModifiedBy = 8;
+}

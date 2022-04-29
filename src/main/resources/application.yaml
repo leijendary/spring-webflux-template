@@ -137,7 +137,6 @@ spring:
                 dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleDeleted-in-0.destination}
   elasticsearch:
     uris:
-    connectionTimeout: 1m
   redis:
     host:
     port:

@@ -108,11 +108,6 @@ class SampleSearch(
     }
 
     suspend fun delete(id: UUID) {
-        val document = sampleSearchRepository
-            .findById(id)
-            .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
-            .awaitSingle()
-
-        sampleSearchRepository.delete(document)
+        sampleSearchRepository.deleteById(id)
     }
 }

@@ -12,19 +12,25 @@ import com.leijendary.spring.webflux.template.core.util.HEADER_USER_ID
 import liquibase.repackaged.org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus.*
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec
+import java.lang.Thread.sleep
 import java.math.BigDecimal
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets.UTF_8
 import java.security.SecureRandom
 import java.text.DecimalFormat
+import java.util.Locale.getDefault
 import kotlin.math.abs
 
 class SampleRouterTest(
     @Autowired
-    private val client: WebTestClient
+    private val client: WebTestClient,
+
+    @Autowired
+    private val messageSource: MessageSource
 ) : ApplicationTests() {
     private val url = "/api/v1/samples"
     private val random = SecureRandom()
@@ -286,7 +292,7 @@ class SampleRouterTest(
     }
 
     @Test
-    fun `Sample Delete - Should return empty and not get 404 after`() {
+    fun `Sample Delete - Should return empty then 404 after`() {
         val request = createRequest()
         val createResponse = client
             .post()
@@ -312,7 +318,10 @@ class SampleRouterTest(
             .expectStatus().isNoContent
             .expectBody().isEmpty
 
-        val message = "Resource data.SampleTable.id with the identifier ${createResponse.id} was not found"
+        sleep(1000)
+
+        val args = arrayOf("data.SampleTable.id", createResponse.id)
+        val message = messageSource.getMessage("error.resource.notFound", args, getDefault())
 
         client
             .get()

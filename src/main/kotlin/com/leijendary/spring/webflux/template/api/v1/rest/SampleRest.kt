@@ -8,6 +8,7 @@ import com.leijendary.spring.webflux.template.client.SampleClient
 import com.leijendary.spring.webflux.template.core.data.DataResponse
 import com.leijendary.spring.webflux.template.core.data.Seekable
 import com.leijendary.spring.webflux.template.core.util.RequestContext
+import com.leijendary.spring.webflux.template.core.util.RequestContext.zoneId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus.CREATED
@@ -16,7 +17,6 @@ import org.springframework.http.MediaType.TEXT_HTML_VALUE
 import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.TextStyle.FULL
 import java.util.*
 import javax.validation.Valid
@@ -88,9 +88,8 @@ class SampleRest(private val sampleClient: SampleClient, private val sampleTable
 
     @GetMapping(value = ["timezone"], produces = [TEXT_PLAIN_VALUE])
     suspend fun timezone(): String {
-        val timeZone: TimeZone = RequestContext.timeZone()
-        val zoneId: ZoneId = timeZone.toZoneId()
-        val displayName: String = zoneId.getDisplayName(FULL, RequestContext.locale())
+        val zoneId = zoneId()
+        val displayName = zoneId.getDisplayName(FULL, RequestContext.locale())
         val id: String = zoneId.id
 
         return String.format("%s %s", displayName, id)

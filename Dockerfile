@@ -12,5 +12,10 @@ ARG DEPENDENCY=/workspace/app/build/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-ENV JAVA_OPTS="-XX:+AllowRedefinitionToAddDeleteMethods"
-ENTRYPOINT ["java", "$JAVA_OPTS", "-cp", "app:app/lib/*", "com.leijendary.spring.webflux.template.ApplicationKt"]
+ENTRYPOINT [ \
+    "java", \
+    "-XX:+AllowRedefinitionToAddDeleteMethods", \
+    "-cp", \
+    "app:app/lib/*", \
+    "com.leijendary.spring.webflux.template.ApplicationKt" \
+]

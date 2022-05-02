@@ -3,7 +3,7 @@
 - This template is intended for the microservice architecture
 - Kafka is included in this template
 - Sample classes are included
-- **This template uses functional endpoint routing**
+- **This template uses annotation based routing**
 - **Intended for personal use only as this does not include complete features like JHipster**
 
 # Technologies Used:
@@ -31,6 +31,8 @@
 - JUnit
 - Kubernetes
 - Reactor Test
+- BlockHound
+- OpenAPI
 
 # Spring Microservice WebFlux
 

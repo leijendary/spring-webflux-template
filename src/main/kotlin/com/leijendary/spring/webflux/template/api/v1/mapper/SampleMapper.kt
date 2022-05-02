@@ -4,8 +4,8 @@ import com.leijendary.spring.webflux.template.api.v1.data.*
 import com.leijendary.spring.webflux.template.data.SampleMessage
 import com.leijendary.spring.webflux.template.document.SampleDocument
 import com.leijendary.spring.webflux.template.document.SampleTranslationDocument
-import com.leijendary.spring.webflux.template.model.SampleTable
-import com.leijendary.spring.webflux.template.model.SampleTableTranslation
+import com.leijendary.spring.webflux.template.entity.SampleTable
+import com.leijendary.spring.webflux.template.entity.SampleTableTranslation
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.MappingTarget

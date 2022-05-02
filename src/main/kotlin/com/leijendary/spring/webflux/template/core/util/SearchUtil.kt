@@ -1,5 +1,6 @@
 package com.leijendary.spring.webflux.template.core.util
 
+import com.leijendary.spring.webflux.template.core.util.RequestContext.language
 import org.elasticsearch.common.unit.Fuzziness.AUTO
 import org.elasticsearch.index.query.BoolQueryBuilder
 import org.elasticsearch.index.query.MatchQueryBuilder
@@ -44,7 +45,7 @@ object SearchUtil {
         return wildcardQuery(name, "*$query*").caseInsensitive(true)
     }
 
-    fun sortBuilders(sort: Sort): List<SortBuilder<*>> {
+    suspend fun sortBuilders(sort: Sort): List<SortBuilder<*>> {
         val sortBuilders = ArrayList<SortBuilder<*>>()
 
         sort.forEach {
@@ -63,11 +64,11 @@ object SearchUtil {
         return sortBuilders
     }
 
-    fun nestedTranslations(field: String, direction: Sort.Direction): FieldSortBuilder {
+    suspend fun nestedTranslations(field: String, direction: Sort.Direction): FieldSortBuilder {
         return nested("translations", field, direction)
     }
 
-    fun nested(path: String, field: String, direction: Sort.Direction): FieldSortBuilder {
+    suspend fun nested(path: String, field: String, direction: Sort.Direction): FieldSortBuilder {
         val nestedSort = NestedSortBuilder(path).setFilter(languageQuery())
 
         return field(field, direction).setNestedSort(nestedSort)
@@ -79,8 +80,8 @@ object SearchUtil {
         return fieldSort(field).order(sortOrder)
     }
 
-    fun languageQuery(): TermQueryBuilder {
-        val language = RequestContext.language
+    suspend fun languageQuery(): TermQueryBuilder {
+        val language = language()
 
         return termQuery("translations.language", language)
     }

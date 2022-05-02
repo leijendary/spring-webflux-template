@@ -1,7 +1,7 @@
-package com.leijendary.spring.webflux.template.model
+package com.leijendary.spring.webflux.template.entity
 
-import com.leijendary.spring.webflux.template.core.model.SeekModel
-import com.leijendary.spring.webflux.template.core.model.SoftDeleteModel
+import com.leijendary.spring.webflux.template.core.entity.SeekEntity
+import com.leijendary.spring.webflux.template.core.entity.SoftDeleteEntity
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.LastModifiedBy
 import org.springframework.data.annotation.LastModifiedDate
@@ -12,7 +12,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Table
-class SampleTable : SeekModel(), SoftDeleteModel {
+class SampleTable : SeekEntity(), SoftDeleteEntity {
     @Column(value = "column_1")
     lateinit var column1: String
 

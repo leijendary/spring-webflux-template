@@ -5,6 +5,15 @@ info:
     name: ${name}
     description: ${description}
     version: ${version}
+  api:
+    termsOfService:
+    contact:
+      name: Jonathan Leijendekker
+      url: https://leijendary.com
+      email:
+    license:
+      name: Jonathan Leijendekker
+      url: https://leijendary.com
 
 auth:
   anonymousUser:
@@ -151,6 +160,9 @@ server:
   http2:
     enabled: true
   port: 80
+
+springdoc:
+  pathsToMatch: /api/**
 
 logging:
   level:

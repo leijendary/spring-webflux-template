@@ -1,13 +1,12 @@
 package com.leijendary.spring.webflux.template.core.data
 
 import com.leijendary.spring.webflux.template.core.extension.fullPath
+import com.leijendary.spring.webflux.template.core.util.RequestContext.request
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.OK
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.bodyValueAndAwait
+import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.util.UriComponentsBuilder.fromUriString
 import java.time.LocalDateTime.now
 
@@ -17,50 +16,40 @@ class DataResponse<T>(
     val links: Map<String, String?> = emptyMap()
 ) : Response {
     companion object {
-        fun <T> builder(request: ServerRequest): DataResponseBuilder<T> {
+        suspend fun <T> builder(): DataResponseBuilder<T> {
+            val request = request()!!
+
             return DataResponseBuilder<T>(request)
                 .status(OK)
-                .meta("requestId", request.exchange().request.id)
+                .meta("requestId", request.id)
                 .selfLink()
         }
 
-        suspend fun <T> of(request: ServerRequest, body: T, httpStatus: HttpStatus = OK): ServerResponse {
-            val dataResponse = builder<T>(request)
+        suspend fun <T> of(body: T, httpStatus: HttpStatus = OK): DataResponse<T> {
+            return builder<T>()
                 .data(body)
                 .status(httpStatus)
                 .build()
-
-            return ServerResponse
-                .status(httpStatus)
-                .bodyValueAndAwait(dataResponse)
         }
 
-        suspend fun <T> from(request: ServerRequest, seek: Seek<T>): ServerResponse {
-            val dataResponse = builder<List<T>>(request)
+        suspend fun <T> from(seek: Seek<T>): DataResponse<List<T>> {
+            return builder<List<T>>()
                 .data(seek.content)
                 .links(seek)
                 .meta(seek)
                 .build()
-
-            return ServerResponse
-                .ok()
-                .bodyValueAndAwait(dataResponse)
         }
 
-        suspend fun <T> from(request: ServerRequest, page: Page<T>): ServerResponse {
-            val dataResponse = builder<List<T>>(request)
+        suspend fun <T> from(page: Page<T>): DataResponse<List<T>> {
+            return builder<List<T>>()
                 .data(page.content)
                 .links(page)
                 .meta(page)
                 .build()
-
-            return ServerResponse
-                .ok()
-                .bodyValueAndAwait(dataResponse)
         }
     }
 
-    class DataResponseBuilder<T>(private val request: ServerRequest) {
+    class DataResponseBuilder<T>(private val request: ServerHttpRequest) {
         private var data: T? = null
         private val meta: MutableMap<String, Any> = HashMap()
         private val links: MutableMap<String, String?> = HashMap()
@@ -102,7 +91,7 @@ class DataResponse<T>(
         }
 
         fun selfLink(): DataResponseBuilder<T> {
-            links["self"] = request.uri().fullPath()
+            links["self"] = request.uri.fullPath()
 
             return this
         }
@@ -125,7 +114,7 @@ class DataResponse<T>(
                 links["next"] = createLink(nextPageable.pageNumber, size, sort)
             }
 
-            links["last"] = createLink(page.totalPages, size, sort)
+            links["last"] = createLink(page.totalPages - 1, size, sort)
 
             return this
         }
@@ -142,7 +131,7 @@ class DataResponse<T>(
         }
 
         private fun createLink(page: Int, size: Int, sort: Sort): String {
-            val path: String = request.uri().fullPath()
+            val path: String = request.uri.fullPath()
             val builder = fromUriString(path)
                 .replaceQueryParam("page", page)
                 .replaceQueryParam("size", size)
@@ -159,7 +148,7 @@ class DataResponse<T>(
         }
 
         private fun createLink(nextToken: String, limit: Int): String {
-            val path = request.uri().fullPath()
+            val path = request.uri.fullPath()
             val builder = fromUriString(path)
                 .replaceQueryParam("limit", limit)
                 .replaceQueryParam("nextToken", nextToken)

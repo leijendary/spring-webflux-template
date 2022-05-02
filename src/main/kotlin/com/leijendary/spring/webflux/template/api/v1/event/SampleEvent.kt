@@ -72,7 +72,7 @@ class SampleEvent(
     private suspend fun createConsumer(sampleResponse: SampleResponse) {
         val id = sampleResponse.id
 
-        reactiveRedisCache.set("$CACHE_KEY$id", sampleResponse)
+        reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
 
         val message = MAPPER.toMessage(sampleResponse)
 
@@ -84,7 +84,7 @@ class SampleEvent(
     private suspend fun updateConsumer(sampleResponse: SampleResponse) {
         val id = sampleResponse.id
 
-        reactiveRedisCache.set("$CACHE_KEY$id", sampleResponse)
+        reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
 
         val message = MAPPER.toMessage(sampleResponse)
 
@@ -96,7 +96,7 @@ class SampleEvent(
     private suspend fun deleteConsumer(sampleResponse: SampleResponse) {
         val id = sampleResponse.id
 
-        reactiveRedisCache.delete("$CACHE_KEY$id")
+        reactiveRedisCache.delete("$CACHE_KEY:$id")
 
         val message = MAPPER.toMessage(sampleResponse)
 

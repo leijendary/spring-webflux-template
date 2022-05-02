@@ -11,13 +11,10 @@ import kotlin.reflect.KClass
 
 @Component
 class ResourceNotUniqueErrorMapping(private val messageSource: MessageSource) : ErrorMapping {
-    override fun supports(): KClass<out ResourceNotUniqueException> {
-        return ResourceNotUniqueException::class
-    }
+    override fun supports(): KClass<out ResourceNotUniqueException> = ResourceNotUniqueException::class
 
-    override fun <T : Throwable> status(throwable: T): HttpStatus {
-        return (throwable as ResourceNotUniqueException).httpStatus
-    }
+    override fun <T : Throwable> status(throwable: T): HttpStatus =
+        (throwable as ResourceNotUniqueException).httpStatus
 
     override fun <T : Throwable> getErrors(exchange: ServerWebExchange, throwable: T): List<ErrorData> {
         val exception = throwable as ResourceNotUniqueException

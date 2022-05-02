@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component
 
 @Component
 class Encryption(private val keyProperties: KeyProperties) {
-    fun encrypt(raw: String): String {
+    suspend fun encrypt(raw: String): String {
         return encryptor().encrypt(raw)
     }
 
-    fun decrypt(encrypted: String): String {
+    suspend fun decrypt(encrypted: String): String {
         return encryptor().decrypt(encrypted)
     }
 

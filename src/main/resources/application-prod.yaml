@@ -1,3 +1,9 @@
 spring:
   main:
     bannerMode: off
+
+springdoc:
+  apiDocs:
+    enabled: false
+  swaggerUi:
+    enabled: false

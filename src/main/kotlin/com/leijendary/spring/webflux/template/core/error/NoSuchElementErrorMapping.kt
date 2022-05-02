@@ -11,13 +11,9 @@ import kotlin.reflect.KClass
 
 @Component
 class NoSuchElementErrorMapping(private val messageSource: MessageSource) : ErrorMapping {
-    override fun supports(): KClass<NoSuchElementException> {
-        return NoSuchElementException::class
-    }
+    override fun supports(): KClass<NoSuchElementException> = NoSuchElementException::class
 
-    override fun <T : Throwable> status(throwable: T): HttpStatus {
-        return BAD_REQUEST
-    }
+    override fun <T : Throwable> status(throwable: T): HttpStatus = BAD_REQUEST
 
     override fun <T : Throwable> getErrors(exchange: ServerWebExchange, throwable: T): List<ErrorData> {
         val exception = throwable as NoSuchElementException

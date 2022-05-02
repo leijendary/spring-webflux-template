@@ -12,13 +12,9 @@ import kotlin.reflect.KClass
 
 @Component
 class UnsupportedMediaTypeErrorMapping(private val messageSource: MessageSource) : ErrorMapping {
-    override fun supports(): KClass<UnsupportedMediaTypeStatusException> {
-        return UnsupportedMediaTypeStatusException::class
-    }
+    override fun supports(): KClass<UnsupportedMediaTypeStatusException> = UnsupportedMediaTypeStatusException::class
 
-    override fun <T : Throwable> status(throwable: T): HttpStatus {
-        return UNSUPPORTED_MEDIA_TYPE
-    }
+    override fun <T : Throwable> status(throwable: T): HttpStatus = UNSUPPORTED_MEDIA_TYPE
 
     override fun <T : Throwable> getErrors(exchange: ServerWebExchange, throwable: T): List<ErrorData> {
         val source = listOf("header", "content-type")

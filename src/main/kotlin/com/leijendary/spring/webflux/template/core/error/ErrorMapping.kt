@@ -11,7 +11,5 @@ interface ErrorMapping : Ordered {
     fun <T : Throwable> status(throwable: T): HttpStatus
     fun <T : Throwable> getErrors(exchange: ServerWebExchange, throwable: T): List<ErrorData>
 
-    override fun getOrder(): Int {
-        return 0
-    }
+    override fun getOrder(): Int = 0
 }

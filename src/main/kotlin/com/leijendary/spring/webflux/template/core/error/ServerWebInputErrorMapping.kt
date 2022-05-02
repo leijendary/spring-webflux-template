@@ -14,13 +14,9 @@ import kotlin.reflect.KClass
 
 @Component
 class ServerWebInputErrorMapping(private val messageSource: MessageSource) : ErrorMapping {
-    override fun supports(): KClass<ServerWebInputException> {
-        return ServerWebInputException::class
-    }
+    override fun supports(): KClass<ServerWebInputException> = ServerWebInputException::class
 
-    override fun <T : Throwable> status(throwable: T): HttpStatus {
-        return BAD_REQUEST
-    }
+    override fun <T : Throwable> status(throwable: T): HttpStatus = BAD_REQUEST
 
     override fun <T : Throwable> getErrors(exchange: ServerWebExchange, throwable: T): List<ErrorData> {
         val exception = throwable as ServerWebInputException
@@ -28,6 +24,7 @@ class ServerWebInputErrorMapping(private val messageSource: MessageSource) : Err
         return when (val cause = exception.mostSpecificCause) {
             is InvalidFormatException -> errors(exchange, cause)
             is JsonMappingException -> errors(cause)
+            is IllegalArgumentException -> errors(cause)
             else -> {
                 val source = listOf("body")
                 val code = "error.badRequest"
@@ -53,6 +50,15 @@ class ServerWebInputErrorMapping(private val messageSource: MessageSource) : Err
         val source = createSource(exception.path)
         val code = "error.body.format.invalid"
         val message = exception.originalMessage
+        val errorData = ErrorData(source, code, message)
+
+        return listOf(errorData)
+    }
+
+    private fun errors(exception: IllegalArgumentException): List<ErrorData> {
+        val source = listOf("request")
+        val code = "error.badRequest"
+        val message = exception.message
         val errorData = ErrorData(source, code, message)
 
         return listOf(errorData)

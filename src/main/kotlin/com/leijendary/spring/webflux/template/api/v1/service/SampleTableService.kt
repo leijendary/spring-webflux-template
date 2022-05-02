@@ -16,8 +16,8 @@ import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFact
 import com.leijendary.spring.webflux.template.core.factory.SeekFactory
 import com.leijendary.spring.webflux.template.repository.SampleTableRepository
 import com.leijendary.spring.webflux.template.repository.SampleTableTranslationRepository
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.collect
@@ -53,9 +53,9 @@ class SampleTableService(
 
         return flux
             .contextWrite { readOnlyContext(it) }
-            .collectList()
-            .map { SeekFactory.create(it, seekable) }
-            .awaitSingle()
+            .asFlow()
+            .toList(mutableListOf())
+            .let { SeekFactory.create(it, seekable) }
             .transform { MAPPER.toListResponse(it) }
     }
 
@@ -85,7 +85,7 @@ class SampleTableService(
     }
 
     suspend fun get(id: UUID): SampleResponse {
-        val key = "$CACHE_KEY$id"
+        val key = "$CACHE_KEY:$id"
         val cache = reactiveRedisCache.get(key, SampleResponse::class)
 
         if (cache != null) {
@@ -145,7 +145,7 @@ class SampleTableService(
         return response
     }
 
-    suspend fun delete(id: UUID) = coroutineScope {
+    suspend fun delete(id: UUID) {
         val sampleTable = sampleTableRepository
             .get(id)
             .contextWrite { readOnlyContext(it) }

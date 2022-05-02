@@ -13,13 +13,9 @@ import kotlin.reflect.KClass
 
 @Component
 class OptimisticLockingFailureErrorMapping(private val messageSource: MessageSource) : ErrorMapping {
-    override fun supports(): KClass<out OptimisticLockingFailureException> {
-        return OptimisticLockingFailureException::class
-    }
+    override fun supports(): KClass<out OptimisticLockingFailureException> = OptimisticLockingFailureException::class
 
-    override fun <T : Throwable> status(throwable: T): HttpStatus {
-        return CONFLICT
-    }
+    override fun <T : Throwable> status(throwable: T): HttpStatus = CONFLICT
 
     override fun <T : Throwable> getErrors(exchange: ServerWebExchange, throwable: T): List<ErrorData> {
         val exception = throwable as OptimisticLockingFailureException

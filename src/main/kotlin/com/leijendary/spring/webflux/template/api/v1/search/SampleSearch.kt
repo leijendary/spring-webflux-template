@@ -3,6 +3,7 @@ package com.leijendary.spring.webflux.template.api.v1.search
 import com.leijendary.spring.webflux.template.api.v1.data.SampleResponse
 import com.leijendary.spring.webflux.template.api.v1.data.SampleSearchResponse
 import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
+import com.leijendary.spring.webflux.template.core.data.Pageable
 import com.leijendary.spring.webflux.template.core.exception.ResourceNotFoundException
 import com.leijendary.spring.webflux.template.core.util.RequestContext.language
 import com.leijendary.spring.webflux.template.core.util.SearchUtil.match
@@ -12,9 +13,9 @@ import com.leijendary.spring.webflux.template.repository.SampleSearchRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder
 import org.springframework.stereotype.Service
@@ -28,13 +29,14 @@ class SampleSearch(
 ) {
     companion object {
         private val MAPPER: SampleMapper = SampleMapper.INSTANCE
-        private val SOURCE = listOf("search", "SampleSearch")
+        private val SOURCE = listOf("search", "SampleSearch", "id")
     }
 
     suspend fun page(query: String, pageable: Pageable): Page<SampleSearchResponse> {
+        val pageRequest = pageable.toRequest()
         val searchBuilder = NativeSearchQueryBuilder()
         // Add the pagination to the search builder
-        searchBuilder.withPageable(pageable)
+        searchBuilder.withPageable(pageRequest)
 
         if (query.isNotEmpty()) {
             // Query for translations.name and translations.description
@@ -44,12 +46,12 @@ class SampleSearch(
         }
 
         // Each sort builder should be added into the search builder's sort
-        val sortBuilders = sortBuilders(pageable.sort)
+        val sortBuilders = sortBuilders(pageRequest.sort)
         // Add sort to the search builder
         searchBuilder.withSorts(sortBuilders)
 
         val searchQuery = searchBuilder.build()
-        val language = language.awaitSingle()
+        val language = language()
 
         return template
             .searchForPage(searchQuery, SampleDocument::class.java)
@@ -57,7 +59,7 @@ class SampleSearch(
                 val list = it.content.map { c -> c.content }
                 val total = it.searchHits.totalHits
 
-                PageImpl(list, pageable, total).map { page ->
+                PageImpl(list, pageRequest, total).map { page ->
                     val translation = page.translation(language)
 
                     MAPPER.toSearchResponse(page, translation)
@@ -87,7 +89,7 @@ class SampleSearch(
             .findById(id)
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .awaitSingle()
-        val language = language.awaitSingle()
+        val language = language()
         val translation = document.translation(language)
 
         return MAPPER.toSearchResponse(document, translation)
@@ -101,13 +103,15 @@ class SampleSearch(
             .doOnNext { MAPPER.update(sampleResponse, it) }
             .flatMap { sampleSearchRepository.save(it) }
             .awaitSingle()
-        val language = language.awaitSingle()
+        val language = language()
         val translation = document.translation(language)
 
         return MAPPER.toSearchResponse(document, translation)
     }
 
     suspend fun delete(id: UUID) {
-        sampleSearchRepository.deleteById(id)
+        sampleSearchRepository
+            .deleteById(id)
+            .awaitSingleOrNull()
     }
 }

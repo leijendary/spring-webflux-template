@@ -13,13 +13,9 @@ import kotlin.reflect.KClass
 
 @Component
 class ResponseStatusErrorMapping(private val messageSource: MessageSource) : ErrorMapping {
-    override fun supports(): KClass<out ResponseStatusException> {
-        return ResponseStatusException::class
-    }
+    override fun supports(): KClass<out ResponseStatusException> = ResponseStatusException::class
 
-    override fun <T : Throwable> status(throwable: T): HttpStatus {
-        return (throwable as ResponseStatusException).status
-    }
+    override fun <T : Throwable> status(throwable: T): HttpStatus = (throwable as ResponseStatusException).status
 
     override fun <T : Throwable> getErrors(exchange: ServerWebExchange, throwable: T): List<ErrorData> {
         val exception = throwable as ResponseStatusException

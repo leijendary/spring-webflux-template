@@ -3,10 +3,10 @@ package com.leijendary.spring.webflux.template.core.factory
 import com.leijendary.spring.webflux.template.core.data.Seek
 import com.leijendary.spring.webflux.template.core.data.SeekToken
 import com.leijendary.spring.webflux.template.core.data.Seekable
+import com.leijendary.spring.webflux.template.core.entity.SeekEntity
 import com.leijendary.spring.webflux.template.core.extension.AnyUtil.toJson
 import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.core.extension.toClass
-import com.leijendary.spring.webflux.template.core.model.SeekModel
 import com.leijendary.spring.webflux.template.core.security.Encryption
 import com.leijendary.spring.webflux.template.core.util.SpringContext.Companion.getBean
 import java.util.Base64.getDecoder
@@ -20,11 +20,15 @@ class SeekFactory {
     companion object {
         private val log = logger()
 
-        fun from(seekable: Seekable): SeekToken? {
-            return seekable.nextToken?.let { decode(it) }
+        suspend fun from(seekable: Seekable): SeekToken? {
+            val nextToken = seekable.nextToken
+
+            return if (nextToken != null && nextToken.isNotBlank()) {
+                decode(nextToken)
+            } else null
         }
 
-        fun <T : SeekModel> create(original: List<T>, seekable: Seekable): Seek<T> {
+        suspend fun <T : SeekEntity> create(original: List<T>, seekable: Seekable): Seek<T> {
             var list = original
             var size = list.size
             val limit = seekable.limit
@@ -43,7 +47,7 @@ class SeekFactory {
             return Seek(list, nextToken, size, seekable)
         }
 
-        fun encode(seekToken: SeekToken): String {
+        suspend fun encode(seekToken: SeekToken): String {
             val json = seekToken.toJson()!!
 
             log.debug("Encoding next token {}", json)
@@ -54,7 +58,7 @@ class SeekFactory {
             return encoder.encodeToString(bytes)
         }
 
-        fun decode(value: String): SeekToken {
+        suspend fun decode(value: String): SeekToken {
             val decoded = decoder.decode(value)
             val string = decoded.decodeToString()
             val json = encryption.decrypt(string)

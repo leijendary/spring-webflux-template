@@ -1,4 +1,4 @@
-package com.leijendary.spring.webflux.template.router
+package com.leijendary.spring.webflux.template.rest
 
 import com.leijendary.spring.webflux.template.ApplicationTests
 import com.leijendary.spring.webflux.template.api.v1.data.SampleRequest
@@ -25,7 +25,7 @@ import java.text.DecimalFormat
 import java.util.Locale.getDefault
 import kotlin.math.abs
 
-class SampleRouterTest(
+class SampleRestTest(
     @Autowired
     private val client: WebTestClient,
 
@@ -47,39 +47,7 @@ class SampleRouterTest(
     private val listLinksSize = 2
 
     @Test
-    fun `Sample Create - Should create multiple and return created records`() {
-        val request = createRequest()
-        val bodyContentSpec = client
-            .post()
-            .uri(url)
-            .bodyValue(request)
-            .header(HEADER_USER_ID, this.userId)
-            .header(HEADER_TRACE_ID, random.nextLong().toString())
-            .exchange()
-            .expectStatus().isCreated
-            .expectBody()
-            .jsonPath("$.data").isNotEmpty
-            .jsonPath("$.data.length()").isEqualTo(detailMemberSize)
-            .jsonPath("$.meta").isMap
-            .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
-            .jsonPath("$.meta.timestamp").isNumber
-            .jsonPath("$.meta.requestId").isNotEmpty
-            .jsonPath("$.meta.status").isEqualTo(CREATED.value())
-            .jsonPath("$.links").isMap
-            .jsonPath("$.links.length()").isEqualTo(detailLinksSize)
-            .jsonPath("$.links.self").isEqualTo(url)
-
-        assertResponse(bodyContentSpec, "$.data", request)
-
-        for (translation in request.translations!!) {
-            val translationPath = languagePath("$.data.translations", translation.language!!)
-
-            assertTranslations(bodyContentSpec, translationPath, translation)
-        }
-    }
-
-    @Test
-    fun `Sample List - Should return the list based on the limit`() {
+    fun `Sample Seek - Should return the list based on the limit and next token`() {
         val suffix = RandomStringUtils.randomAlphabetic(8)
         val query = "junit test $suffix"
         val queryUrl = URLEncoder.encode(query, UTF_8)
@@ -167,8 +135,42 @@ class SampleRouterTest(
     }
 
     @Test
+    fun `Sample Create - Should create multiple and return created records`() {
+        val suffix = RandomStringUtils.randomAlphabetic(8)
+        val request = createRequest(suffix)
+        val bodyContentSpec = client
+            .post()
+            .uri(url)
+            .bodyValue(request)
+            .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_TRACE_ID, random.nextLong().toString())
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody()
+            .jsonPath("$.data").isNotEmpty
+            .jsonPath("$.data.length()").isEqualTo(detailMemberSize)
+            .jsonPath("$.meta").isMap
+            .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
+            .jsonPath("$.meta.timestamp").isNumber
+            .jsonPath("$.meta.requestId").isNotEmpty
+            .jsonPath("$.meta.status").isEqualTo(CREATED.value())
+            .jsonPath("$.links").isMap
+            .jsonPath("$.links.length()").isEqualTo(detailLinksSize)
+            .jsonPath("$.links.self").isEqualTo(url)
+
+        assertResponse(bodyContentSpec, "$.data", request)
+
+        for (translation in request.translations!!) {
+            val translationPath = languagePath("$.data.translations", translation.language!!)
+
+            assertTranslations(bodyContentSpec, translationPath, translation)
+        }
+    }
+
+    @Test
     fun `Sample Get - Should return the created record`() {
-        val request = createRequest()
+        val suffix = RandomStringUtils.randomAlphabetic(8)
+        val request = createRequest(suffix)
         val createResponse = client
             .post()
             .uri(url)
@@ -211,7 +213,8 @@ class SampleRouterTest(
 
     @Test
     fun `Sample Update - Should return the updated record`() {
-        val request = createRequest()
+        val suffix = RandomStringUtils.randomAlphabetic(8)
+        val request = createRequest(suffix)
         val createResponse = client
             .post()
             .uri(url)
@@ -293,7 +296,8 @@ class SampleRouterTest(
 
     @Test
     fun `Sample Delete - Should return empty then 404 after`() {
-        val request = createRequest()
+        val suffix = RandomStringUtils.randomAlphabetic(8)
+        val request = createRequest(suffix)
         val createResponse = client
             .post()
             .uri(url)
@@ -348,7 +352,7 @@ class SampleRouterTest(
             .jsonPath("$.links.self").isEqualTo(uri)
     }
 
-    private fun createRequest(suffix: String = ""): SampleRequest {
+    private fun createRequest(suffix: String): SampleRequest {
         val field1 = "JUnit Test $suffix - ${abs(random.nextInt())}"
         val field2 = abs(random.nextLong())
         val amount = abs(random.nextDouble())
@@ -357,16 +361,16 @@ class SampleRouterTest(
             .multiply(BigDecimal.valueOf(100000))
             .scaled()
 
-        val englishTranslationName = "Test English"
-        val englishTranslationDescription = "Test English Description"
+        val englishTranslationName = "Test English - $suffix"
+        val englishTranslationDescription = "Test English Description - $suffix"
         val englishTranslationLanguage = "en"
         val englishTranslationOrdinal = 1
         val englishRequest = SampleTranslationRequest(englishTranslationName, englishTranslationDescription)
         englishRequest.language = englishTranslationLanguage
         englishRequest.ordinal = englishTranslationOrdinal
 
-        val japaneseTranslationName = "Test Japanese"
-        val japaneseTranslationDescription = "Test Japanese Description"
+        val japaneseTranslationName = "Test Japanese - $suffix"
+        val japaneseTranslationDescription = "Test Japanese Description - $suffix"
         val japaneseTranslationLanguage = "jp"
         val japaneseTranslationOrdinal = 2
         val japaneseRequest = SampleTranslationRequest(japaneseTranslationName, japaneseTranslationDescription)

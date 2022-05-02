@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.elasticsearch.annotations.DateFormat.date_hour_minute_second_millis
 import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
+import org.springframework.data.elasticsearch.annotations.FieldType
 import org.springframework.data.elasticsearch.annotations.FieldType.*
 import org.springframework.data.elasticsearch.annotations.FieldType.Date
 import org.springframework.data.elasticsearch.annotations.Setting
@@ -22,8 +23,8 @@ data class SampleDocument(
     @Field(type = Text, analyzer = "ngram_analyzer", searchAnalyzer = "standard")
     var column1: String,
 
-    @Field(type = Integer)
-    var column2: Int,
+    @Field(type = FieldType.Long)
+    var column2: Long,
 
     @Field(type = Text)
     var amount: BigDecimal,

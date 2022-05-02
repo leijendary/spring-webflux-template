@@ -12,6 +12,7 @@ import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.ConnectionFactoryOptions.*
+import kotlinx.coroutines.reactor.mono
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -44,7 +45,7 @@ class R2dbcConfiguration(
 
     @Bean
     fun auditorAware(): ReactiveAuditorAware<String> {
-        return ReactiveAuditorAware { userId.defaultIfEmpty(authProperties.system.principal) }
+        return ReactiveAuditorAware { mono { userId() }.defaultIfEmpty(authProperties.system.principal) }
     }
 
     @Bean

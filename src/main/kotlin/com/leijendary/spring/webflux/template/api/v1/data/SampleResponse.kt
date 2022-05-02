@@ -4,7 +4,7 @@ import com.leijendary.spring.webflux.template.core.data.LocalizedData
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-const val CACHE_KEY = "sample:v1:"
+const val CACHE_KEY = "sample:v1"
 
 data class SampleResponse(
     val column1: String,

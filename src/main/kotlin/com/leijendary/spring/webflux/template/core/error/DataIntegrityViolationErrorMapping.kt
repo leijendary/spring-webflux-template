@@ -16,9 +16,7 @@ import kotlin.reflect.KClass
 
 @Component
 class DataIntegrityViolationErrorMapping(private val messageSource: MessageSource) : ErrorMapping {
-    override fun supports(): KClass<out DataIntegrityViolationException> {
-        return DataIntegrityViolationException::class
-    }
+    override fun supports(): KClass<out DataIntegrityViolationException> = DataIntegrityViolationException::class
 
     override fun <T : Throwable> status(throwable: T): HttpStatus {
         return when (throwable.cause) {

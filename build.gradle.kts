@@ -47,6 +47,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1-native-mt")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.1-native-mt")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.1-native-mt")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.1-native-mt")
     implementation("org.liquibase:liquibase-core:4.9.1")
     implementation("org.mapstruct:mapstruct:1.4.2.Final")

@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package com.leijendary.spring.webflux.template.v1.sample;
+
+import "google/protobuf/empty.proto";
+
+service SampleService {
+  rpc seek(SampleSeekRequest) returns (SampleSeekResponse);
+  rpc create(SampleRequest) returns (SampleResponse);
+  rpc get(SampleGetRequest) returns (SampleResponse);
+  rpc update(SampleUpdateRequest) returns (SampleResponse);
+  rpc delete(SampleGetRequest) returns (google.protobuf.Empty);
+}
+
+service SampleSearchService {
+  rpc page(SampleSearchPageRequest) returns (SampleSearchPageResponse);
+  rpc get(SampleGetRequest) returns (SampleSearchResponse);
+}
+
+message SampleSeekRequest {
+  optional string query = 1;
+  int32 limit = 2;
+  optional string nextToken = 3;
+}
+
+message SampleSeekResponse {
+  repeated SampleListResponse samples = 1;
+  int32 limit = 2;
+  int32 size = 3;
+  optional string nextToken = 4;
+}
+
+message SampleListResponse {
+  string id = 1;
+  string column1 = 2;
+  int64 column2 = 3;
+  double amount = 4;
+  string createdAt = 5;
+  string createdBy = 6;
+  string lastModifiedAt = 7;
+  string lastModifiedBy = 8;
+}
+
+message SampleRequest {
+  string field1 = 1;
+  int64 field2 = 2;
+  double amount = 3;
+  repeated SampleTranslation translations = 4;
+}
+
+message SampleGetRequest {
+  string id = 1;
+}
+
+message SampleTranslation {
+  string name = 1;
+  optional string description = 2;
+  string language = 3;
+  int32 ordinal = 4;
+}
+
+message SampleResponse {
+  string id = 1;
+  string column1 = 2;
+  int64 column2 = 3;
+  double amount = 4;
+  string createdAt = 5;
+  string createdBy = 6;
+  string lastModifiedAt = 7;
+  string lastModifiedBy = 8;
+  repeated SampleTranslation translations = 9;
+}
+
+message SampleUpdateRequest {
+  string id = 1;
+  string field1 = 2;
+  int64 field2 = 3;
+  double amount = 4;
+  repeated SampleTranslation translations = 5;
+}
+
+message SampleSearchPageRequest {
+  string query = 1;
+  int32 page = 2;
+  int32 size = 3;
+  repeated string sort = 4;
+}
+
+message SampleSearchPageResponse {
+  repeated SampleSearchResponse samples = 1;
+  int32 page = 2;
+  int32 size = 3;
+  int32 totalPages = 4;
+  int64 totalElements = 5;
+}
+
+message SampleSearchResponse {
+  string id = 1;
+  string column1 = 2;
+  string column2 = 3;
+  double amount = 4;
+  string name = 5;
+  string description = 6;
+  string createdAt = 7;
+}

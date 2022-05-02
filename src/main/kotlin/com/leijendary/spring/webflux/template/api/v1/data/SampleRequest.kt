@@ -8,11 +8,11 @@ import javax.validation.constraints.*
 data class SampleRequest(
     @field:NotBlank(message = "validation.required")
     @field:Size(max = 100, message = "validation.maxLength")
-    val field1: String? = null,
+    val field1: String?,
 
     @field:NotNull(message = "validation.required")
     @field:Min(value = 0, message = "validation.min")
-    val field2: Long? = null,
+    val field2: Long?,
 
     @field:NotNull(message = "validation.required")
     @field:DecimalMin(value = "0.01", message = "validation.decimal.min")

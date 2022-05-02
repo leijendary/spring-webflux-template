@@ -1,3 +1,3 @@
 rootProject.name = "webflux-template"
 
-include("proto", "stub")
+include("protos", "stubs")

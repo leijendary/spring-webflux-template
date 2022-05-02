@@ -1,10 +1,6 @@
 package com.leijendary.spring.webflux.template.api.v1.service
 
-import com.leijendary.spring.webflux.template.api.v1.data.CACHE_KEY
-import com.leijendary.spring.webflux.template.api.v1.data.SampleListResponse
 import com.leijendary.spring.webflux.template.api.v1.data.SampleRequest
-import com.leijendary.spring.webflux.template.api.v1.data.SampleResponse
-import com.leijendary.spring.webflux.template.api.v1.event.SampleEvent
 import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
 import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
@@ -14,9 +10,12 @@ import com.leijendary.spring.webflux.template.core.data.Seekable
 import com.leijendary.spring.webflux.template.core.exception.ResourceNotFoundException
 import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory.Companion.readOnlyContext
 import com.leijendary.spring.webflux.template.core.factory.SeekFactory
+import com.leijendary.spring.webflux.template.core.validator.BindingValidator
+import com.leijendary.spring.webflux.template.entity.CACHE_KEY
+import com.leijendary.spring.webflux.template.entity.SampleTable
+import com.leijendary.spring.webflux.template.event.SampleEvent
 import com.leijendary.spring.webflux.template.repository.SampleTableRepository
 import com.leijendary.spring.webflux.template.repository.SampleTableTranslationRepository
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
@@ -31,7 +30,8 @@ import java.util.*
 import java.util.UUID.randomUUID
 
 @Service
-class SampleTableService(
+class SampleService(
+    private val bindingValidator: BindingValidator,
     private val reactiveRedisCache: ReactiveRedisCache,
     private val r2dbcBatchProperties: R2dbcBatchProperties,
     private val sampleEvent: SampleEvent,
@@ -45,7 +45,7 @@ class SampleTableService(
         private val SOURCE = listOf("data", "SampleTable", "id")
     }
 
-    suspend fun seek(query: String, seekable: Seekable): Seek<SampleListResponse> {
+    suspend fun seek(query: String, seekable: Seekable): Seek<SampleTable> {
         val flux = SeekFactory
             .from(seekable)
             ?.let { sampleTableRepository.seek(query, it.createdAt, it.rowId, seekable.limit) }
@@ -56,12 +56,13 @@ class SampleTableService(
             .collectList()
             .map { SeekFactory.create(it, seekable) }
             .awaitSingle()
-            .transform { MAPPER.toListResponse(it) }
     }
 
-    suspend fun create(sampleRequest: SampleRequest): SampleResponse {
+    suspend fun create(sampleRequest: SampleRequest): SampleTable {
+        bindingValidator.validate(sampleRequest)
+
         var sampleTable = MAPPER.toEntity(sampleRequest)
-        var sampleTableTranslations = MAPPER.toEntity(sampleRequest.translations!!)
+        val translations = MAPPER.toEntity(sampleRequest.translations!!)
         val id = randomUUID()
 
         sampleTable.id = id
@@ -70,23 +71,20 @@ class SampleTableService(
             sampleTable = sampleTableRepository
                 .save(sampleTable)
                 .awaitSingle()
-            sampleTableTranslations = sampleTableTranslationRepository
-                .save(id, sampleTableTranslations)
+            sampleTable.translations = sampleTableTranslationRepository
+                .save(id, translations)
                 .asFlow()
                 .toSet(mutableSetOf())
         }
 
-        val response = MAPPER.toResponse(sampleTable)
-        response.translations = MAPPER.toResponse(sampleTableTranslations)
+        sampleEvent.create(sampleTable)
 
-        sampleEvent.create(response)
-
-        return response
+        return sampleTable
     }
 
-    suspend fun get(id: UUID): SampleResponse {
+    suspend fun get(id: UUID): SampleTable {
         val key = "$CACHE_KEY$id"
-        val cache = reactiveRedisCache.get(key, SampleResponse::class)
+        val cache = reactiveRedisCache.get(key, SampleTable::class)
 
         if (cache != null) {
             return cache
@@ -97,21 +95,20 @@ class SampleTableService(
             .contextWrite { readOnlyContext(it) }
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .awaitSingle()
-        val sampleTableTranslations = sampleTableTranslationRepository
+        sampleTable.translations = sampleTableTranslationRepository
             .findByReferenceId(id)
             .contextWrite { readOnlyContext(it) }
             .asFlow()
             .toSet(mutableSetOf())
 
-        val response = MAPPER.toResponse(sampleTable)
-        response.translations = MAPPER.toResponse(sampleTableTranslations)
+        this.reactiveRedisCache.set(key, sampleTable)
 
-        this.reactiveRedisCache.set(key, response)
-
-        return response
+        return sampleTable
     }
 
-    suspend fun update(id: UUID, sampleRequest: SampleRequest): SampleResponse {
+    suspend fun update(id: UUID, sampleRequest: SampleRequest): SampleTable {
+        bindingValidator.validate(sampleRequest)
+
         var sampleTable = sampleTableRepository
             .get(id)
             .contextWrite { readOnlyContext(it) }
@@ -120,7 +117,7 @@ class SampleTableService(
 
         MAPPER.update(sampleRequest, sampleTable)
 
-        var sampleTableTranslations = MAPPER.toEntity(sampleRequest.translations!!)
+        val translations = sampleTable.translations
         val oldTranslations = sampleTableTranslationRepository
             .findByReferenceId(id)
             .contextWrite { readOnlyContext(it) }
@@ -131,41 +128,34 @@ class SampleTableService(
             sampleTable = sampleTableRepository
                 .save(sampleTable)
                 .awaitSingle()
-            sampleTableTranslations = sampleTableTranslationRepository
-                .save(id, oldTranslations, sampleTableTranslations)
+            sampleTable.translations = sampleTableTranslationRepository
+                .save(id, oldTranslations, translations)
                 .asFlow()
                 .toSet(mutableSetOf())
         }
 
-        val response = MAPPER.toResponse(sampleTable)
-        response.translations = MAPPER.toResponse(sampleTableTranslations)
+        sampleEvent.update(sampleTable)
 
-        sampleEvent.update(response)
-
-        return response
+        return sampleTable
     }
 
-    suspend fun delete(id: UUID) = coroutineScope {
+    suspend fun delete(id: UUID) {
         val sampleTable = sampleTableRepository
             .get(id)
             .contextWrite { readOnlyContext(it) }
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .awaitSingle()
-
-        sampleTableRepository
-            .softDelete(sampleTable)
-            .awaitSingle()
-
-        val sampleTableTranslations = sampleTableTranslationRepository
+        sampleTable.translations = sampleTableTranslationRepository
             .findByReferenceId(id)
             .contextWrite { readOnlyContext(it) }
             .asFlow()
             .toSet(mutableSetOf())
 
-        val response = MAPPER.toResponse(sampleTable)
-        response.translations = MAPPER.toResponse(sampleTableTranslations)
+        sampleTableRepository
+            .softDelete(sampleTable)
+            .awaitSingle()
 
-        sampleEvent.delete(response)
+        sampleEvent.delete(sampleTable)
     }
 
     suspend fun reindex(): Int {
@@ -179,18 +169,15 @@ class SampleTableService(
             .runOn(parallel())
             .collect { list ->
                 val responses = list.map { sampleTable ->
-                    val translations = sampleTableTranslationRepository
+                    sampleTable.translations = sampleTableTranslationRepository
                         .findByReferenceId(sampleTable.id)
                         .contextWrite { readOnlyContext(it) }
                         .asFlow()
                         .toSet(mutableSetOf())
 
-                    val response = MAPPER.toResponse(sampleTable)
-                    response.translations = MAPPER.toResponse(translations)
-
                     count++
 
-                    response
+                    sampleTable
                 }
 
                 sampleSearch

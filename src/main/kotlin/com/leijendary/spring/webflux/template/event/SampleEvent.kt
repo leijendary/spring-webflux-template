@@ -1,11 +1,11 @@
-package com.leijendary.spring.webflux.template.api.v1.event
+package com.leijendary.spring.webflux.template.event
 
-import com.leijendary.spring.webflux.template.api.v1.data.CACHE_KEY
-import com.leijendary.spring.webflux.template.api.v1.data.SampleResponse
 import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
 import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
 import com.leijendary.spring.webflux.template.core.util.EmitHandler.emitFailureHandler
+import com.leijendary.spring.webflux.template.entity.CACHE_KEY
+import com.leijendary.spring.webflux.template.entity.SampleTable
 import com.leijendary.spring.webflux.template.message.SampleMessageProducer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Unconfined
@@ -20,9 +20,9 @@ class SampleEvent(
     private val sampleMessageProducer: SampleMessageProducer,
     private val sampleSearch: SampleSearch,
 ) {
-    private val createBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
-    private val updateBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
-    private val deleteBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
+    private val createBuffer = many().multicast().onBackpressureBuffer<SampleTable>()
+    private val updateBuffer = many().multicast().onBackpressureBuffer<SampleTable>()
+    private val deleteBuffer = many().multicast().onBackpressureBuffer<SampleTable>()
 
     companion object {
         private val MAPPER: SampleMapper = SampleMapper.INSTANCE
@@ -57,48 +57,48 @@ class SampleEvent(
             }
     }
 
-    suspend fun create(sampleResponse: SampleResponse) {
-        createBuffer.emitNext(sampleResponse, emitFailureHandler)
+    suspend fun create(sampleTable: SampleTable) {
+        createBuffer.emitNext(sampleTable, emitFailureHandler)
     }
 
-    suspend fun update(sampleResponse: SampleResponse) {
-        updateBuffer.emitNext(sampleResponse, emitFailureHandler)
+    suspend fun update(sampleTable: SampleTable) {
+        updateBuffer.emitNext(sampleTable, emitFailureHandler)
     }
 
-    suspend fun delete(sampleResponse: SampleResponse) {
-        deleteBuffer.emitNext(sampleResponse, emitFailureHandler)
+    suspend fun delete(sampleTable: SampleTable) {
+        deleteBuffer.emitNext(sampleTable, emitFailureHandler)
     }
 
-    private suspend fun createConsumer(sampleResponse: SampleResponse) {
-        val id = sampleResponse.id
+    private suspend fun createConsumer(sampleTable: SampleTable) {
+        val id = sampleTable.id
 
-        reactiveRedisCache.set("$CACHE_KEY$id", sampleResponse)
+        reactiveRedisCache.set("$CACHE_KEY$id", sampleTable)
 
-        val message = MAPPER.toMessage(sampleResponse)
+        val message = MAPPER.toMessage(sampleTable)
 
         sampleMessageProducer.create(message)
 
-        sampleSearch.save(sampleResponse)
+        sampleSearch.save(sampleTable)
     }
 
-    private suspend fun updateConsumer(sampleResponse: SampleResponse) {
-        val id = sampleResponse.id
+    private suspend fun updateConsumer(sampleTable: SampleTable) {
+        val id = sampleTable.id
 
-        reactiveRedisCache.set("$CACHE_KEY$id", sampleResponse)
+        reactiveRedisCache.set("$CACHE_KEY$id", sampleTable)
 
-        val message = MAPPER.toMessage(sampleResponse)
+        val message = MAPPER.toMessage(sampleTable)
 
         sampleMessageProducer.update(message)
 
-        sampleSearch.update(sampleResponse)
+        sampleSearch.update(sampleTable)
     }
 
-    private suspend fun deleteConsumer(sampleResponse: SampleResponse) {
-        val id = sampleResponse.id
+    private suspend fun deleteConsumer(sampleTable: SampleTable) {
+        val id = sampleTable.id
 
         reactiveRedisCache.delete("$CACHE_KEY$id")
 
-        val message = MAPPER.toMessage(sampleResponse)
+        val message = MAPPER.toMessage(sampleTable)
 
         sampleMessageProducer.delete(message)
 

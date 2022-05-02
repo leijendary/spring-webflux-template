@@ -6,21 +6,26 @@ import com.leijendary.spring.webflux.template.core.config.properties.R2dbcReadon
 import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory
 import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory.ConnectionMode.READ_ONLY
 import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory.ConnectionMode.READ_WRITE
+import com.leijendary.spring.webflux.template.core.interceptor.CONTEXT_KEY_USER_ID
 import com.leijendary.spring.webflux.template.core.util.RequestContext.userId
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.ConnectionFactoryOptions.*
+import net.devh.boot.grpc.server.scope.GrpcRequestScope.GRPC_REQUEST_SCOPE_NAME
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Scope
+import org.springframework.context.annotation.ScopedProxyMode.TARGET_CLASS
 import org.springframework.data.auditing.DateTimeProvider
 import org.springframework.data.domain.ReactiveAuditorAware
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing
 import java.time.LocalDateTime.now
 import java.util.Optional.of
+import java.util.function.Supplier
 
 @Configuration
 @EnableR2dbcAuditing(auditorAwareRef = "auditorAware", dateTimeProviderRef = "dateTimeProvider")
@@ -51,6 +56,10 @@ class R2dbcConfiguration(
     fun dateTimeProvider(): DateTimeProvider {
         return DateTimeProvider { of(now()) }
     }
+
+    @Bean
+    @Scope(scopeName = GRPC_REQUEST_SCOPE_NAME, proxyMode = TARGET_CLASS)
+    fun grpcContextUser(): Supplier<String?> = Supplier { CONTEXT_KEY_USER_ID.get() }
 
     private fun primaryConnectionFactory(): ConnectionFactory {
         return connectionPool(primaryProperties)

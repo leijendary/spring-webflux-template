@@ -34,6 +34,8 @@ kapt {
 }
 
 dependencies {
+    implementation(project(":stubs"))
+
     implementation("org.springframework.boot:spring-boot-starter-actuator:2.6.7")
     implementation("org.springframework.boot:spring-boot-starter-aop:2.6.7")
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:2.6.7")

@@ -1,8 +1,9 @@
 import com.google.protobuf.gradle.*
+import org.gradle.api.file.DuplicatesStrategy.EXCLUDE
 
 plugins {
-    kotlin("jvm")
     id("com.google.protobuf")
+    kotlin("jvm")
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_17
@@ -14,13 +15,14 @@ repositories {
 dependencies {
     protobuf(project(":protos"))
 
-    implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.21")
-    implementation("io.grpc:grpc-stub:1.46.0")
-    implementation("io.grpc:grpc-protobuf:1.46.0")
-    implementation("com.google.protobuf:protobuf-java-util:3.19.4")
-    implementation("com.google.protobuf:protobuf-kotlin:3.19.4")
-    implementation("io.grpc:grpc-kotlin-stub:1.2.1")
+    api("org.jetbrains.kotlin:kotlin-stdlib:1.6.21")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1-native-mt")
+    api("io.grpc:grpc-googleapis:1.46.0")
+    api("io.grpc:grpc-stub:1.46.0")
+    api("io.grpc:grpc-protobuf:1.46.0")
+    api("com.google.protobuf:protobuf-java-util:3.20.1")
+    api("com.google.protobuf:protobuf-kotlin:3.20.1")
+    api("io.grpc:grpc-kotlin-stub:1.2.1")
 }
 
 protobuf {
@@ -46,4 +48,14 @@ protobuf {
             }
         }
     }
+}
+
+tasks.compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
+    }
+}
+
+tasks.withType(Jar::class) {
+    duplicatesStrategy = EXCLUDE
 }

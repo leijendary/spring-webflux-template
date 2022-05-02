@@ -7,9 +7,9 @@ import javax.validation.constraints.Size
 data class SampleTranslationRequest(
     @field:NotBlank(message = "validation.required")
     @field:Size(max = 100, message = "validation.maxLength")
-    val name: String? = null,
+    var name: String?,
 
     @field:NotBlank(message = "validation.required")
     @field:Size(max = 200, message = "validation.maxLength")
-    val description: String? = null
+    var description: String?
 ) : TranslationRequest()

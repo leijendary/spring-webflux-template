@@ -1,13 +1,12 @@
 package com.leijendary.spring.webflux.template.api.v1.search
 
-import com.leijendary.spring.webflux.template.api.v1.data.SampleResponse
-import com.leijendary.spring.webflux.template.api.v1.data.SampleSearchResponse
 import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.core.exception.ResourceNotFoundException
 import com.leijendary.spring.webflux.template.core.util.RequestContext.language
 import com.leijendary.spring.webflux.template.core.util.SearchUtil.match
 import com.leijendary.spring.webflux.template.core.util.SearchUtil.sortBuilders
 import com.leijendary.spring.webflux.template.document.SampleDocument
+import com.leijendary.spring.webflux.template.entity.SampleTable
 import com.leijendary.spring.webflux.template.repository.SampleSearchRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
@@ -31,7 +30,7 @@ class SampleSearch(
         private val SOURCE = listOf("search", "SampleSearch")
     }
 
-    suspend fun page(query: String, pageable: Pageable): Page<SampleSearchResponse> {
+    suspend fun page(query: String, pageable: Pageable): Page<SampleDocument> {
         val searchBuilder = NativeSearchQueryBuilder()
         // Add the pagination to the search builder
         searchBuilder.withPageable(pageable)
@@ -49,7 +48,6 @@ class SampleSearch(
         searchBuilder.withSorts(sortBuilders)
 
         val searchQuery = searchBuilder.build()
-        val language = language.awaitSingle()
 
         return template
             .searchForPage(searchQuery, SampleDocument::class.java)
@@ -57,54 +55,43 @@ class SampleSearch(
                 val list = it.content.map { c -> c.content }
                 val total = it.searchHits.totalHits
 
-                PageImpl(list, pageable, total).map { page ->
-                    val translation = page.translation(language)
-
-                    MAPPER.toSearchResponse(page, translation)
-                }
+                PageImpl(list, pageable, total)
             }
             .awaitSingle()
     }
 
-    suspend fun save(sampleResponse: SampleResponse): SampleDocument {
-        val document = MAPPER.toDocument(sampleResponse)
+    suspend fun save(sampleTable: SampleTable): SampleDocument {
+        val document = MAPPER.toDocument(sampleTable)
 
         return sampleSearchRepository
             .save(document)
             .awaitSingle()
     }
 
-    suspend fun save(sampleResponses: List<SampleResponse>): Flow<SampleDocument> {
-        val list = sampleResponses.map { MAPPER.toDocument(it) }
+    suspend fun save(sampleTables: List<SampleTable>): Flow<SampleDocument> {
+        val list = sampleTables.map { MAPPER.toDocument(it) }
 
         return sampleSearchRepository
             .saveAll(list)
             .asFlow()
     }
 
-    suspend fun get(id: UUID): SampleSearchResponse {
-        val document = sampleSearchRepository
+    suspend fun get(id: UUID): SampleDocument {
+        return sampleSearchRepository
             .findById(id)
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .awaitSingle()
-        val language = language.awaitSingle()
-        val translation = document.translation(language)
-
-        return MAPPER.toSearchResponse(document, translation)
     }
 
-    suspend fun update(sampleResponse: SampleResponse): SampleSearchResponse {
-        val id = sampleResponse.id
-        val document = sampleSearchRepository
+    suspend fun update(sampleTable: SampleTable): SampleDocument {
+        val id = sampleTable.id
+
+        return sampleSearchRepository
             .findById(id)
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
-            .doOnNext { MAPPER.update(sampleResponse, it) }
+            .doOnNext { MAPPER.update(sampleTable, it) }
             .flatMap { sampleSearchRepository.save(it) }
             .awaitSingle()
-        val language = language.awaitSingle()
-        val translation = document.translation(language)
-
-        return MAPPER.toSearchResponse(document, translation)
     }
 
     suspend fun delete(id: UUID) {

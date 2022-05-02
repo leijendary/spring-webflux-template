@@ -1,6 +1,6 @@
 package com.leijendary.spring.webflux.template.core.repository
 
-import com.leijendary.spring.webflux.template.core.model.LocaleModel
+import com.leijendary.spring.webflux.template.core.entity.LocaleEntity
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
@@ -8,7 +8,7 @@ import reactor.kotlin.core.publisher.toFlux
 import java.util.*
 
 @Repository
-class LocaleRepositoryImpl<T : LocaleModel>(private val template: R2dbcEntityTemplate) : LocaleRepository<T> {
+class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTemplate) : LocaleRepository<T> {
     override fun save(referenceId: UUID, translations: Set<T>): Flux<T> {
         return translations
             .toFlux()
@@ -20,7 +20,7 @@ class LocaleRepositoryImpl<T : LocaleModel>(private val template: R2dbcEntityTem
     }
 
     override fun save(referenceId: UUID, oldTranslations: Set<T>, newTranslations: Set<T>): Flux<T> {
-        val isolation = LocaleModel.isolate(oldTranslations, newTranslations)
+        val isolation = LocaleEntity.isolate(oldTranslations, newTranslations)
 
         return Flux
             .merge(
@@ -40,5 +40,6 @@ class LocaleRepositoryImpl<T : LocaleModel>(private val template: R2dbcEntityTem
         return translations
             .toFlux()
             .flatMap { template.delete(it) }
+            .flatMap { Flux.empty() }
     }
 }

@@ -3,10 +3,10 @@ package com.leijendary.spring.webflux.template.core.factory
 import com.leijendary.spring.webflux.template.core.data.Seek
 import com.leijendary.spring.webflux.template.core.data.SeekToken
 import com.leijendary.spring.webflux.template.core.data.Seekable
+import com.leijendary.spring.webflux.template.core.entity.SeekEntity
 import com.leijendary.spring.webflux.template.core.extension.AnyUtil.toJson
 import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.core.extension.toClass
-import com.leijendary.spring.webflux.template.core.model.SeekModel
 import com.leijendary.spring.webflux.template.core.security.Encryption
 import com.leijendary.spring.webflux.template.core.util.SpringContext.Companion.getBean
 import java.util.Base64.getDecoder
@@ -21,10 +21,16 @@ class SeekFactory {
         private val log = logger()
 
         fun from(seekable: Seekable): SeekToken? {
-            return seekable.nextToken?.let { decode(it) }
+            val nextToken = seekable.nextToken
+
+            return if (nextToken != null && nextToken.isNotBlank()) {
+                return decode(nextToken)
+            } else {
+                null
+            }
         }
 
-        fun <T : SeekModel> create(original: List<T>, seekable: Seekable): Seek<T> {
+        fun <T : SeekEntity> create(original: List<T>, seekable: Seekable): Seek<T> {
             var list = original
             var size = list.size
             val limit = seekable.limit

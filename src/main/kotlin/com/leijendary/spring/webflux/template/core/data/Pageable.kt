@@ -11,20 +11,25 @@ class Pageable {
         fun from(request: ServerRequest): PageRequest {
             val page = request.queryParam("page", 0, Int::class) { it.toInt() }
             val size = request.queryParam("size", 10, Int::class) { it.toInt() }
-            val orders = request
+            val sort = request
                 .queryParams()
                 .getOrDefault("sort", emptyList<String>())
-                .map {
-                    val split = it
-                        .split(",")
-                        .let { s -> if (s.size == 1) listOf(s[0], "asc") else s }
-                    val field = split[0]
 
-                    when (split[1]) {
-                        "desc" -> Order.desc(field)
-                        else -> Order.asc(field)
-                    }
+            return from(page, size, sort)
+        }
+
+        fun from(page: Int = 0, size: Int = 10, sort: List<String> = emptyList()): PageRequest {
+            val orders = sort.map {
+                val split = it
+                    .split(",")
+                    .let { s -> if (s.size == 1) listOf(s[0], "asc") else s }
+                val field = split[0]
+
+                when (split[1]) {
+                    "desc" -> Order.desc(field)
+                    else -> Order.asc(field)
                 }
+            }
 
             return PageRequest.of(page, size, Sort.by(orders))
         }

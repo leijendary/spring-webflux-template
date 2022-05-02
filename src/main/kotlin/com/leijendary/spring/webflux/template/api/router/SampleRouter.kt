@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.server.coRouter
-import com.leijendary.spring.webflux.template.api.v1.handler.SampleHandler as SampleHandlerV1
+import com.leijendary.spring.webflux.template.api.v1.http.SampleHandler as SampleHandlerV1
 
 @Configuration
 class SampleRouter(private val sampleHandlerV1: SampleHandlerV1) {

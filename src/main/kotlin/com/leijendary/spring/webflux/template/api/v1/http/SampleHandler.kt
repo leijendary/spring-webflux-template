@@ -1,7 +1,8 @@
-package com.leijendary.spring.webflux.template.api.v1.handler
+package com.leijendary.spring.webflux.template.api.v1.http
 
 import com.leijendary.spring.webflux.template.api.v1.data.SampleRequest
-import com.leijendary.spring.webflux.template.api.v1.service.SampleTableService
+import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
+import com.leijendary.spring.webflux.template.api.v1.service.SampleService
 import com.leijendary.spring.webflux.template.client.SampleClient
 import com.leijendary.spring.webflux.template.core.data.DataResponse
 import com.leijendary.spring.webflux.template.core.data.Seekable
@@ -9,7 +10,6 @@ import com.leijendary.spring.webflux.template.core.extension.language
 import com.leijendary.spring.webflux.template.core.extension.locale
 import com.leijendary.spring.webflux.template.core.extension.pathVariable
 import com.leijendary.spring.webflux.template.core.extension.timeZone
-import com.leijendary.spring.webflux.template.core.validator.BindingValidator
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus.CREATED
@@ -20,32 +20,35 @@ import java.util.*
 import java.util.UUID.fromString
 
 @Component
-class SampleHandler(
-    private val bindingValidator: BindingValidator,
-    private val sampleClient: SampleClient,
-    private val sampleTableService: SampleTableService
-) {
+class SampleHandler(private val sampleClient: SampleClient, private val sampleService: SampleService) {
+    companion object {
+        private val MAPPER: SampleMapper = SampleMapper.INSTANCE
+    }
+
     suspend fun seek(request: ServerRequest): ServerResponse {
         val query = request.queryParamOrNull("query") ?: ""
         val seekable = Seekable.from(request)
-        val result = sampleTableService.seek(query, seekable)
+        val result = sampleService
+            .seek(query, seekable)
+            .transform { MAPPER.toListResponse(it) }
 
         return DataResponse.from(request, result)
     }
 
     suspend fun create(request: ServerRequest): ServerResponse {
         val body = request.awaitBody<SampleRequest>()
-
-        bindingValidator.validate(body)
-
-        val result = sampleTableService.create(body)
+        val result = sampleService
+            .create(body)
+            .let { MAPPER.toResponse(it) }
 
         return DataResponse.of(request, result, CREATED)
     }
 
     suspend fun get(request: ServerRequest): ServerResponse {
         val id = request.pathVariable("id", UUID::class) { fromString(it) }
-        val result = sampleTableService.get(id)
+        val result = sampleService
+            .get(id)
+            .let { MAPPER.toResponse(it) }
 
         return DataResponse.of(request, result)
     }
@@ -53,10 +56,9 @@ class SampleHandler(
     suspend fun update(request: ServerRequest): ServerResponse {
         val id = request.pathVariable("id", UUID::class) { fromString(it) }
         val body = request.awaitBody<SampleRequest>()
-
-        bindingValidator.validate(body)
-
-        val result = sampleTableService.update(id, body)
+        val result = sampleService
+            .update(id, body)
+            .let { MAPPER.toResponse(it) }
 
         return DataResponse.of(request, result)
     }
@@ -64,7 +66,7 @@ class SampleHandler(
     suspend fun delete(request: ServerRequest): ServerResponse {
         val id = request.pathVariable("id", UUID::class) { fromString(it) }
 
-        sampleTableService.delete(id)
+        sampleService.delete(id)
 
         return ServerResponse
             .noContent()

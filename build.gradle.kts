@@ -2,8 +2,8 @@ plugins {
     id("org.springframework.boot") version "2.6.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.21"
-    id("com.google.protobuf") version "0.8.18" apply false
-    kotlin("jvm") version "1.6.21" apply false
+    id("com.google.protobuf") version "0.8.18"
+    kotlin("jvm") version "1.6.21"
     kotlin("kapt") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
 }
@@ -57,6 +57,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.4.2.Final")
     implementation("org.springframework:spring-jdbc:5.3.19")
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.6")
+    implementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
     developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.7")
     kapt("org.mapstruct:mapstruct-processor:1.4.2.Final")
     runtimeOnly("io.r2dbc:r2dbc-postgresql:0.8.12.RELEASE")

@@ -1,18 +1,17 @@
-package com.leijendary.spring.webflux.template.model
+package com.leijendary.spring.webflux.template.entity
 
-import com.leijendary.spring.webflux.template.core.model.SeekModel
-import com.leijendary.spring.webflux.template.core.model.SoftDeleteModel
-import org.springframework.data.annotation.CreatedBy
-import org.springframework.data.annotation.LastModifiedBy
-import org.springframework.data.annotation.LastModifiedDate
-import org.springframework.data.annotation.Version
+import com.leijendary.spring.webflux.template.core.entity.SeekEntity
+import com.leijendary.spring.webflux.template.core.entity.SoftDeleteEntity
+import org.springframework.data.annotation.*
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
+const val CACHE_KEY = "sample:"
+
 @Table
-class SampleTable : SeekModel(), SoftDeleteModel {
+class SampleTable : SeekEntity(), SoftDeleteEntity {
     @Column(value = "column_1")
     lateinit var column1: String
 
@@ -35,4 +34,7 @@ class SampleTable : SeekModel(), SoftDeleteModel {
 
     override var deletedAt: LocalDateTime? = null
     override var deletedBy: String? = null
+
+    @Transient
+    var translations: Set<SampleTableTranslation> = mutableSetOf()
 }

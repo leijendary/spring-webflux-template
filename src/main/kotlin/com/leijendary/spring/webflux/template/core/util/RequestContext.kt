@@ -2,8 +2,6 @@ package com.leijendary.spring.webflux.template.core.util
 
 import com.leijendary.spring.webflux.template.core.extension.locale
 import com.leijendary.spring.webflux.template.core.extension.timeZone
-import com.leijendary.spring.webflux.template.core.extension.traceId
-import com.leijendary.spring.webflux.template.core.extension.userId
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
@@ -14,13 +12,15 @@ import java.util.*
 
 const val HEADER_TRACE_ID = "X-Trace-ID"
 const val HEADER_USER_ID = "X-User-ID"
-val EXCHANGE_CONTEXT_KEY: String = ServerWebExchange::class.java.name
+const val CONTEXT_USER_ID = "UserID"
+const val CONTEXT_TRACE_ID = "TraceID"
+const val CONTEXT_EXCHANGE: String = "ServerWebExchange"
 
 object RequestContext {
     val currentExchange: Mono<ServerWebExchange>
         get() = Mono
             .deferContextual {
-                it.getOrEmpty<ServerWebExchange>(EXCHANGE_CONTEXT_KEY)
+                it.getOrEmpty<ServerWebExchange>(CONTEXT_EXCHANGE)
                     .orElse(null)
                     .toMono()
             }
@@ -31,11 +31,23 @@ object RequestContext {
             .map { it.request }
             .switchIfEmpty { Mono.empty() }
 
-    val traceId: Mono<String>
-        get() = currentRequest.mapNotNull { it.traceId() }
-
     val userId: Mono<String>
-        get() = currentRequest.mapNotNull { it.userId() }
+        get() = Mono
+            .deferContextual {
+                it.getOrEmpty<String>(CONTEXT_USER_ID)
+                    .orElse(null)
+                    .toMono()
+            }
+            .switchIfEmpty { Mono.empty() }
+
+    val traceId: Mono<String>
+        get() = Mono
+            .deferContextual {
+                it.getOrEmpty<String>(CONTEXT_TRACE_ID)
+                    .orElse(null)
+                    .toMono()
+            }
+            .switchIfEmpty { Mono.empty() }
 
     val locale: Mono<Locale>
         get() = currentExchange

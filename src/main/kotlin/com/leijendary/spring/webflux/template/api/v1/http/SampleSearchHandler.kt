@@ -1,10 +1,13 @@
-package com.leijendary.spring.webflux.template.api.v1.handler
+package com.leijendary.spring.webflux.template.api.v1.http
 
+import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
-import com.leijendary.spring.webflux.template.api.v1.service.SampleTableService
+import com.leijendary.spring.webflux.template.api.v1.service.SampleService
 import com.leijendary.spring.webflux.template.core.data.DataResponse
 import com.leijendary.spring.webflux.template.core.data.Pageable
 import com.leijendary.spring.webflux.template.core.extension.pathVariable
+import com.leijendary.spring.webflux.template.core.util.RequestContext.language
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -15,11 +18,22 @@ import java.util.UUID.fromString
 import kotlin.system.measureTimeMillis
 
 @Component
-class SampleSearchHandler(private val sampleTableService: SampleTableService, private val sampleSearch: SampleSearch) {
+class SampleSearchHandler(private val sampleService: SampleService, private val sampleSearch: SampleSearch) {
+    companion object {
+        private val MAPPER = SampleMapper.INSTANCE
+    }
+
     suspend fun page(request: ServerRequest): ServerResponse {
         val query = request.queryParamOrNull("query") ?: ""
         val seekable = Pageable.from(request)
-        val result = sampleSearch.page(query, seekable)
+        val language = language.awaitSingle()
+        val result = sampleSearch
+            .page(query, seekable)
+            .map { page ->
+                val translation = page.translation(language)
+
+                MAPPER.toSearchResponse(page, translation)
+            }
 
         return DataResponse.from(request, result)
     }
@@ -34,7 +48,7 @@ class SampleSearchHandler(private val sampleTableService: SampleTableService, pr
     suspend fun reindex(request: ServerRequest): ServerResponse {
         var count: Int
         val time = measureTimeMillis {
-            count = sampleTableService.reindex()
+            count = sampleService.reindex()
         }
 
         return ServerResponse

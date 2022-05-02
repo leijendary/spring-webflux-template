@@ -1,10 +1,10 @@
-package com.leijendary.spring.webflux.template.core.model
+package com.leijendary.spring.webflux.template.core.entity
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.ReadOnlyProperty
 import java.time.LocalDateTime
 
-abstract class SeekModel : UUIDModel() {
+abstract class SeekEntity : UUIDEntity() {
     @CreatedDate
     lateinit var createdAt: LocalDateTime
 

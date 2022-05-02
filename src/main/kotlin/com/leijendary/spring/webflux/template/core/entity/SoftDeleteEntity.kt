@@ -1,8 +1,8 @@
-package com.leijendary.spring.webflux.template.core.model
+package com.leijendary.spring.webflux.template.core.entity
 
 import java.time.LocalDateTime
 
-interface SoftDeleteModel {
+interface SoftDeleteEntity {
     var deletedAt: LocalDateTime?
     var deletedBy: String?
 }

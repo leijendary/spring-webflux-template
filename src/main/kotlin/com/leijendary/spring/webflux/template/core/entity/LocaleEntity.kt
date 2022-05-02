@@ -1,10 +1,10 @@
-package com.leijendary.spring.webflux.template.core.model
+package com.leijendary.spring.webflux.template.core.entity
 
 import com.leijendary.spring.webflux.template.core.data.LocaleIsolation
 import org.springframework.data.annotation.Id
 import java.util.*
 
-abstract class LocaleModel : AppModel() {
+abstract class LocaleEntity : AppEntity() {
     @Id
     var id: Long = 0
 
@@ -14,7 +14,7 @@ abstract class LocaleModel : AppModel() {
     var ordinal: Int = 0
 
     companion object {
-        fun <T : LocaleModel> isolate(oldTranslations: Set<T>, newTranslations: Set<T>): LocaleIsolation<T> {
+        fun <T : LocaleEntity> isolate(oldTranslations: Set<T>, newTranslations: Set<T>): LocaleIsolation<T> {
             val creates = mutableSetOf<T>()
             val updates = mutableSetOf<T>()
             val deletes = mutableSetOf<T>()

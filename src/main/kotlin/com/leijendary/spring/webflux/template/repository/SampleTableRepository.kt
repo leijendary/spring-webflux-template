@@ -1,7 +1,7 @@
 package com.leijendary.spring.webflux.template.repository
 
 import com.leijendary.spring.webflux.template.core.repository.SoftDeleteRepository
-import com.leijendary.spring.webflux.template.model.SampleTable
+import com.leijendary.spring.webflux.template.entity.SampleTable
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Flux

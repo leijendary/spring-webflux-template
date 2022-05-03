@@ -18,6 +18,10 @@ class SpringContext : ApplicationContextAware {
             return context!!.getBean(beanClass.java)
         }
 
+        fun isLocal(): Boolean {
+            return "local" in context!!.environment.activeProfiles
+        }
+
         fun isProd(): Boolean {
             return "prod" in context!!.environment.activeProfiles
         }

@@ -41,7 +41,7 @@ interface SampleTableRepository : ReactiveCrudRepository<SampleTable, UUID>, Sof
               limit :limit + 1
         """
     )
-    fun query(query: String, limit: Int): Flux<SampleTable>
+    fun query(query: String? = "", limit: Int): Flux<SampleTable>
 
     @Query(
         """
@@ -75,7 +75,7 @@ interface SampleTableRepository : ReactiveCrudRepository<SampleTable, UUID>, Sof
               limit :limit + 1
         """
     )
-    fun seek(query: String, createdAt: LocalDateTime, rowId: Long, limit: Int): Flux<SampleTable>
+    fun seek(query: String? = "", createdAt: LocalDateTime, rowId: Long, limit: Int): Flux<SampleTable>
 
     @Query(
         """

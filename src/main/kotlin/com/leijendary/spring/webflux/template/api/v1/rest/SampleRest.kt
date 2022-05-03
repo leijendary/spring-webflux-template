@@ -52,9 +52,10 @@ class SampleRest(private val sampleClient: SampleClient, private val sampleTable
      */
     @GetMapping
     @Operation(summary = "Sample implementation of swagger in a api")
-    suspend fun seek(query: String, seekable: Seekable): DataResponse<List<SampleListResponse>> = sampleTableService
-        .seek(query, seekable)
-        .let { DataResponse.from(it) }
+    suspend fun seek(query: String? = "", seekable: Seekable): DataResponse<List<SampleListResponse>> =
+        sampleTableService
+            .seek(query, seekable)
+            .let { DataResponse.from(it) }
 
     @PostMapping
     @ResponseStatus(CREATED)

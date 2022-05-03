@@ -45,7 +45,7 @@ class SampleTableService(
         private val SOURCE = listOf("data", "SampleTable", "id")
     }
 
-    suspend fun seek(query: String, seekable: Seekable): Seek<SampleListResponse> {
+    suspend fun seek(query: String? = "", seekable: Seekable): Seek<SampleListResponse> {
         val flux = SeekFactory
             .from(seekable)
             ?.let { sampleTableRepository.seek(query, it.createdAt, it.rowId, seekable.limit) }

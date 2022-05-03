@@ -151,11 +151,6 @@ spring:
     host:
     port:
 
-management:
-  endpoint:
-    health:
-      showDetails: ALWAYS
-
 server:
   http2:
     enabled: true

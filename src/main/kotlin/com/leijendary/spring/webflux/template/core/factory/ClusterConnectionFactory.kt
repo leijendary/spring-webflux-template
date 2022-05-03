@@ -5,7 +5,6 @@ import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFact
 import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory.ConnectionMode.READ_WRITE
 import org.springframework.r2dbc.connection.lookup.AbstractRoutingConnectionFactory
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import reactor.util.context.Context
 
 private const val CONTEXT_KEY = "CONNECTION_TYPE"
@@ -27,11 +26,10 @@ class ClusterConnectionFactory : AbstractRoutingConnectionFactory() {
     override fun determineCurrentLookupKey(): Mono<Any> {
         return Mono
             .deferContextual { Mono.just(it) }
-            .filter { it.hasKey(CONTEXT_KEY) }
-            .mapNotNull {
-                it.getOrDefault(CONTEXT_KEY, READ_WRITE)
-                    .toMono()
-                    .doOnNext { mode -> log.debug("Database connection mode use: $mode") }
+            .mapNotNull { context ->
+                context
+                    .getOrDefault(CONTEXT_KEY, READ_WRITE)
+                    .also { log.debug("Database connection mode in use: $it") }
             }
     }
 }

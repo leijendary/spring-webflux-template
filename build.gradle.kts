@@ -53,7 +53,6 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.4.2.Final")
     implementation("org.springframework:spring-jdbc:5.3.19")
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.6")
-    implementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
     implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
     developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.7")
     kapt("org.mapstruct:mapstruct-processor:1.4.2.Final")

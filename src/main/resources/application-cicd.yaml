@@ -1,3 +1,1 @@
-spring:
-  redis:
-    port:
+# TODO: Implement CI/CD profile

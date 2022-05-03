@@ -14,6 +14,7 @@ import com.leijendary.spring.webflux.template.core.data.Seekable
 import com.leijendary.spring.webflux.template.core.exception.ResourceNotFoundException
 import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory.Companion.readOnlyContext
 import com.leijendary.spring.webflux.template.core.factory.SeekFactory
+import com.leijendary.spring.webflux.template.core.util.ReactiveUUID
 import com.leijendary.spring.webflux.template.repository.SampleTableRepository
 import com.leijendary.spring.webflux.template.repository.SampleTableTranslationRepository
 import kotlinx.coroutines.flow.collect
@@ -28,7 +29,6 @@ import org.springframework.transaction.reactive.executeAndAwait
 import reactor.core.scheduler.Schedulers.parallel
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.util.*
-import java.util.UUID.randomUUID
 
 @Service
 class SampleTableService(
@@ -62,7 +62,7 @@ class SampleTableService(
     suspend fun create(sampleRequest: SampleRequest): SampleResponse {
         var sampleTable = MAPPER.toEntity(sampleRequest)
         var sampleTableTranslations = MAPPER.toEntity(sampleRequest.translations!!)
-        val id = randomUUID()
+        val id = ReactiveUUID.v4()
 
         sampleTable.id = id
 

@@ -7,6 +7,7 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.boot.autoconfigure.cache.CacheProperties
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate
 import org.springframework.stereotype.Component
+import reactor.core.scheduler.Schedulers.boundedElastic
 import kotlin.reflect.KClass
 
 @Component
@@ -28,6 +29,7 @@ class ReactiveRedisCache(template: ReactiveStringRedisTemplate, private val cach
 
             return operations
                 .set(key, json, ttl)
+                .subscribeOn(boundedElastic())
                 .awaitSingle()
         }
 

@@ -53,14 +53,15 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.4.2.Final")
     implementation("org.springframework:spring-jdbc:5.3.19")
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.6")
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.8")
+    implementation("io.r2dbc:r2dbc-postgresql:0.8.12.RELEASE")
     developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.7")
-    kapt("org.mapstruct:mapstruct-processor:1.4.2.Final")
-    runtimeOnly("io.r2dbc:r2dbc-postgresql:0.8.12.RELEASE")
     runtimeOnly("org.postgresql:postgresql:42.3.4")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.6.7")
     testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.7")
     testImplementation("io.projectreactor:reactor-test:3.4.17")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+    kapt("org.mapstruct:mapstruct-processor:1.4.2.Final")
 }
 
 tasks.compileKotlin {
@@ -71,6 +72,7 @@ tasks.compileKotlin {
 }
 
 tasks.test {
+    jvmArgs = listOf("-XX:+AllowRedefinitionToAddDeleteMethods")
     useJUnitPlatform()
 }
 

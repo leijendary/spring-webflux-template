@@ -6,8 +6,8 @@ import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.core.data.Pageable
 import com.leijendary.spring.webflux.template.core.exception.ResourceNotFoundException
 import com.leijendary.spring.webflux.template.core.util.RequestContext.language
-import com.leijendary.spring.webflux.template.core.util.SearchUtil.match
-import com.leijendary.spring.webflux.template.core.util.SearchUtil.sortBuilders
+import com.leijendary.spring.webflux.template.core.util.SearchQuery.match
+import com.leijendary.spring.webflux.template.core.util.SearchQuery.sortBuilders
 import com.leijendary.spring.webflux.template.document.SampleDocument
 import com.leijendary.spring.webflux.template.repository.SampleSearchRepository
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder
 import org.springframework.stereotype.Service
+import reactor.core.scheduler.Schedulers.boundedElastic
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.util.*
 
@@ -65,6 +66,7 @@ class SampleSearch(
                     MAPPER.toSearchResponse(page, translation)
                 }
             }
+            .subscribeOn(boundedElastic())
             .awaitSingle()
     }
 
@@ -73,6 +75,7 @@ class SampleSearch(
 
         return sampleSearchRepository
             .save(document)
+            .subscribeOn(boundedElastic())
             .awaitSingle()
     }
 
@@ -81,6 +84,7 @@ class SampleSearch(
 
         return sampleSearchRepository
             .saveAll(list)
+            .subscribeOn(boundedElastic())
             .asFlow()
     }
 

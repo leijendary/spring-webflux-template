@@ -14,7 +14,7 @@ import org.elasticsearch.search.sort.SortBuilders.fieldSort
 import org.elasticsearch.search.sort.SortOrder.fromString
 import org.springframework.data.domain.Sort
 
-object SearchUtil {
+object SearchQuery {
     fun match(query: String?, vararg names: String): BoolQueryBuilder {
         val boolQuery = boolQuery()
 

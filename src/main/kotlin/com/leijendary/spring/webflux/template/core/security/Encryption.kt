@@ -1,21 +1,27 @@
 package com.leijendary.spring.webflux.template.core.security
 
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.cloud.bootstrap.encrypt.KeyProperties
 import org.springframework.security.crypto.encrypt.Encryptors.delux
-import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers.boundedElastic
 
 @Component
-class Encryption(private val keyProperties: KeyProperties) {
+class Encryption(keyProperties: KeyProperties) {
+    private val encryptor = delux(keyProperties.key, keyProperties.salt)
+
     suspend fun encrypt(raw: String): String {
-        return encryptor().encrypt(raw)
+        return Mono
+            .fromCallable { encryptor.encrypt(raw) }
+            .subscribeOn(boundedElastic())
+            .awaitSingle()
     }
 
     suspend fun decrypt(encrypted: String): String {
-        return encryptor().decrypt(encrypted)
-    }
-
-    private fun encryptor(): TextEncryptor {
-        return delux(keyProperties.key, keyProperties.salt)
+        return Mono
+            .fromCallable { encryptor.decrypt(encrypted) }
+            .subscribeOn(boundedElastic())
+            .awaitSingle()
     }
 }

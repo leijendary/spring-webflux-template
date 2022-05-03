@@ -11,6 +11,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers.boundedElastic
 import reactor.kotlin.core.publisher.toMono
 import java.nio.charset.StandardCharsets.UTF_8
 
@@ -24,24 +25,29 @@ class GlobalExceptionHandler(errorMappings: List<ErrorMapping>) : ErrorWebExcept
     override fun handle(exchange: ServerWebExchange, throwable: Throwable): Mono<Void> {
         val name = throwable::class.java.canonicalName
         val mapping = errors.getValue(name)
-        val errors = mapping.getErrors(exchange, throwable)
-        val status = mapping.status(throwable)
-        val json = ErrorResponse
-            .builder(exchange.request)
-            .addErrors(errors)
-            .status(status)
-            .build()
-            .toJson()!!
-        val response = exchange.response
-        response.headers[CONTENT_TYPE] = APPLICATION_JSON_VALUE
-        response.headers[CONTENT_LENGTH] = json.length.toString()
-        response.statusCode = status
 
-        val body = response
-            .bufferFactory()
-            .wrap(json.toByteArray(UTF_8))
-            .toMono()
+        return Mono
+            .fromCallable { mapping.getErrors(exchange, throwable) }
+            .flatMap { errors ->
+                val status = mapping.status(throwable)
+                val json = ErrorResponse
+                    .builder(exchange.request)
+                    .addErrors(errors)
+                    .status(status)
+                    .build()
+                    .toJson()!!
+                val response = exchange.response
+                response.headers[CONTENT_TYPE] = APPLICATION_JSON_VALUE
+                response.headers[CONTENT_LENGTH] = json.length.toString()
+                response.statusCode = status
 
-        return response.writeWith(body)
+                val body = response
+                    .bufferFactory()
+                    .wrap(json.toByteArray(UTF_8))
+                    .toMono()
+
+                response.writeWith(body)
+            }
+            .subscribeOn(boundedElastic())
     }
 }

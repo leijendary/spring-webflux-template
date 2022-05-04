@@ -5,7 +5,7 @@ import com.leijendary.spring.webflux.template.api.v1.data.SampleResponse
 import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
 import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
-import com.leijendary.spring.webflux.template.core.util.EmitHandler.emitFailureHandler
+import com.leijendary.spring.webflux.template.core.extension.emit
 import com.leijendary.spring.webflux.template.message.SampleMessageProducer
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.mono
@@ -49,15 +49,15 @@ class SampleEvent(
     }
 
     suspend fun create(sampleResponse: SampleResponse) {
-        createBuffer.emitNext(sampleResponse, emitFailureHandler)
+        createBuffer.emit(sampleResponse)
     }
 
     suspend fun update(sampleResponse: SampleResponse) {
-        updateBuffer.emitNext(sampleResponse, emitFailureHandler)
+        updateBuffer.emit(sampleResponse)
     }
 
     suspend fun delete(sampleResponse: SampleResponse) {
-        deleteBuffer.emitNext(sampleResponse, emitFailureHandler)
+        deleteBuffer.emit(sampleResponse)
     }
 
     private suspend fun createConsumer(sampleResponse: SampleResponse) {

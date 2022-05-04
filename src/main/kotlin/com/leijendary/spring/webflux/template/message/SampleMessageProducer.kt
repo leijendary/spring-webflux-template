@@ -1,9 +1,9 @@
 package com.leijendary.spring.webflux.template.message
 
 import com.leijendary.spring.webflux.template.core.extension.AnyUtil.toJson
+import com.leijendary.spring.webflux.template.core.extension.emit
 import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.core.message.MessageProducer
-import com.leijendary.spring.webflux.template.core.util.EmitHandler.emitFailureHandler
 import com.leijendary.spring.webflux.template.data.SampleMessage
 import org.springframework.context.annotation.Bean
 import org.springframework.messaging.Message
@@ -43,7 +43,7 @@ class SampleMessageProducer : MessageProducer<SampleMessage>() {
     suspend fun create(sampleMessage: SampleMessage) {
         val message = message(sampleMessage)
 
-        createBuffer.emitNext(message, emitFailureHandler)
+        createBuffer.emit(message)
 
         log.info("Create sent: {}", sampleMessage.toJson())
     }
@@ -51,7 +51,7 @@ class SampleMessageProducer : MessageProducer<SampleMessage>() {
     suspend fun update(sampleMessage: SampleMessage) {
         val message = message(sampleMessage)
 
-        updateBuffer.emitNext(message, emitFailureHandler)
+        updateBuffer.emit(message)
 
         log.info("Update sent: {}", sampleMessage.toJson())
     }
@@ -59,7 +59,7 @@ class SampleMessageProducer : MessageProducer<SampleMessage>() {
     suspend fun delete(sampleMessage: SampleMessage) {
         val message = message(sampleMessage)
 
-        deleteBuffer.emitNext(message, emitFailureHandler)
+        deleteBuffer.emit(message)
 
         log.info("Delete sent: {}", sampleMessage.toJson())
     }

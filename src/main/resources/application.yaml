@@ -21,6 +21,9 @@ auth:
   system:
     principal: System
 
+emission:
+  deadline: 1m
+
 encrypt:
   key:
   salt:

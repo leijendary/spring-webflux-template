@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @EnableConfigurationProperties(
     AuthProperties::class,
+    EmissionProperties::class,
     InfoProperties::class,
     NumberProperties::class,
     R2dbcBatchProperties::class,

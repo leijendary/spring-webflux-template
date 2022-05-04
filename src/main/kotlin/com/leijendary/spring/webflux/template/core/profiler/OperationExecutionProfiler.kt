@@ -1,4 +1,4 @@
-package com.leijendary.spring.webflux.template.profiler
+package com.leijendary.spring.webflux.template.core.profiler
 
 import com.leijendary.spring.webflux.template.core.extension.logger
 import org.aspectj.lang.ProceedingJoinPoint

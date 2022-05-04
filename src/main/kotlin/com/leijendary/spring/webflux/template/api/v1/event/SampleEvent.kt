@@ -6,6 +6,7 @@ import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
 import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
 import com.leijendary.spring.webflux.template.core.extension.emit
+import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.message.SampleMessageProducer
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.mono
@@ -20,6 +21,7 @@ class SampleEvent(
     private val sampleMessageProducer: SampleMessageProducer,
     private val sampleSearch: SampleSearch,
 ) {
+    private val log = logger()
     private val createBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
     private val updateBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
     private val deleteBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
@@ -33,18 +35,21 @@ class SampleEvent(
             .asFlux()
             .subscribeOn(boundedElastic())
             .flatMap { mono { createConsumer(it) } }
+            .onErrorContinue { t, _ -> errorConsumer(t) }
             .subscribe()
 
         updateBuffer
             .asFlux()
             .subscribeOn(boundedElastic())
             .flatMap { mono { updateConsumer(it) } }
+            .onErrorContinue { t, _ -> errorConsumer(t) }
             .subscribe()
 
         deleteBuffer
             .asFlux()
             .subscribeOn(boundedElastic())
             .flatMap { mono { deleteConsumer(it) } }
+            .onErrorContinue { t, _ -> errorConsumer(t) }
             .subscribe()
     }
 
@@ -104,4 +109,6 @@ class SampleEvent(
 
         sampleSearch.delete(id)
     }
+
+    private fun errorConsumer(t: Throwable) = log.error("Event threw an exception", t)
 }

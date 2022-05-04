@@ -5,13 +5,11 @@ import com.leijendary.spring.webflux.template.api.v1.data.SampleResponse
 import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
 import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
-import com.leijendary.spring.webflux.template.core.extension.emit
-import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.message.SampleMessageProducer
-import kotlinx.coroutines.reactor.mono
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Sinks.many
-import reactor.core.scheduler.Schedulers.boundedElastic
 
 @Component
 class SampleEvent(
@@ -19,85 +17,58 @@ class SampleEvent(
     private val sampleMessageProducer: SampleMessageProducer,
     private val sampleSearch: SampleSearch,
 ) {
-    private val log = logger()
-    private val createBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
-    private val updateBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
-    private val deleteBuffer = many().multicast().onBackpressureBuffer<SampleResponse>()
-
     companion object {
         private val MAPPER: SampleMapper = SampleMapper.INSTANCE
     }
 
-    init {
-        createBuffer
-            .asFlux()
-            .flatMap { mono { createConsumer(it) } }
-            .onErrorContinue { t, _ -> errorConsumer(t) }
-            .subscribeOn(boundedElastic())
-            .subscribe()
-
-        updateBuffer
-            .asFlux()
-            .flatMap { mono { updateConsumer(it) } }
-            .onErrorContinue { t, _ -> errorConsumer(t) }
-            .subscribeOn(boundedElastic())
-            .subscribe()
-
-        deleteBuffer
-            .asFlux()
-            .flatMap { mono { deleteConsumer(it) } }
-            .onErrorContinue { t, _ -> errorConsumer(t) }
-            .subscribeOn(boundedElastic())
-            .subscribe()
-    }
-
-    suspend fun create(sampleResponse: SampleResponse) {
-        createBuffer.emit(sampleResponse)
-    }
-
-    suspend fun update(sampleResponse: SampleResponse) {
-        updateBuffer.emit(sampleResponse)
-    }
-
-    suspend fun delete(sampleResponse: SampleResponse) {
-        deleteBuffer.emit(sampleResponse)
-    }
-
-    private suspend fun createConsumer(sampleResponse: SampleResponse) {
+    suspend fun create(sampleResponse: SampleResponse) = coroutineScope {
         val id = sampleResponse.id
+        val cache = async {
+            reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
+        }
+        val message = async {
+            val sampleMessage = MAPPER.toMessage(sampleResponse)
 
-        reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
+            sampleMessageProducer.create(sampleMessage)
+        }
+        val search = async {
+            sampleSearch.save(sampleResponse)
+        }
 
-        val message = MAPPER.toMessage(sampleResponse)
-
-        sampleMessageProducer.create(message)
-
-        sampleSearch.save(sampleResponse)
+        awaitAll(cache, message, search)
     }
 
-    private suspend fun updateConsumer(sampleResponse: SampleResponse) {
+    suspend fun update(sampleResponse: SampleResponse) = coroutineScope {
         val id = sampleResponse.id
+        val cache = async {
+            reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
+        }
+        val message = async {
+            val sampleMessage = MAPPER.toMessage(sampleResponse)
 
-        reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
+            sampleMessageProducer.update(sampleMessage)
+        }
+        val search = async {
+            sampleSearch.update(sampleResponse)
+        }
 
-        val message = MAPPER.toMessage(sampleResponse)
-
-        sampleMessageProducer.update(message)
-
-        sampleSearch.update(sampleResponse)
+        awaitAll(cache, message, search)
     }
 
-    private suspend fun deleteConsumer(sampleResponse: SampleResponse) {
+    suspend fun delete(sampleResponse: SampleResponse) = coroutineScope {
         val id = sampleResponse.id
+        val cache = async {
+            reactiveRedisCache.delete("$CACHE_KEY:$id")
+        }
+        val message = async {
+            val sampleMessage = MAPPER.toMessage(sampleResponse)
 
-        reactiveRedisCache.delete("$CACHE_KEY:$id")
+            sampleMessageProducer.delete(sampleMessage)
+        }
+        val search = async {
+            sampleSearch.delete(id)
+        }
 
-        val message = MAPPER.toMessage(sampleResponse)
-
-        sampleMessageProducer.delete(message)
-
-        sampleSearch.delete(id)
+        awaitAll(cache, message, search)
     }
-
-    private fun errorConsumer(t: Throwable) = log.error("Event threw an exception", t)
 }

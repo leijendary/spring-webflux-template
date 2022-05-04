@@ -22,7 +22,7 @@ auth:
     principal: System
 
 emission:
-  deadline: 1m
+  deadline: 5m
 
 encrypt:
   key:

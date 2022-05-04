@@ -6,5 +6,5 @@ import java.time.Duration.ofMinutes
 
 @ConfigurationProperties(prefix = "emission")
 class EmissionProperties {
-    var deadline: Duration = ofMinutes(1)
+    var deadline: Duration = ofMinutes(5)
 }

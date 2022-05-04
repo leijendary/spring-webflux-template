@@ -4,6 +4,7 @@ import com.leijendary.spring.webflux.template.core.entity.LocaleEntity
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
+import reactor.core.scheduler.Schedulers.boundedElastic
 import reactor.kotlin.core.publisher.toFlux
 import java.util.*
 
@@ -15,7 +16,9 @@ class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTe
             .flatMap {
                 it.referenceId = referenceId
 
-                template.insert(it)
+                template
+                    .insert(it)
+                    .subscribeOn(boundedElastic())
             }
     }
 
@@ -27,18 +30,27 @@ class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTe
                 save(referenceId, isolation.creates),
                 update(isolation.updates),
             )
+            .subscribeOn(boundedElastic())
             .doOnNext { delete(isolation.deletes) }
     }
 
     private fun update(translations: Set<T>): Flux<T> {
         return translations
             .toFlux()
-            .flatMap { template.update(it) }
+            .flatMap {
+                template
+                    .update(it)
+                    .subscribeOn(boundedElastic())
+            }
     }
 
     private fun delete(translations: Set<T>): Flux<T> {
         return translations
             .toFlux()
-            .flatMap { template.delete(it) }
+            .flatMap {
+                template
+                    .delete(it)
+                    .subscribeOn(boundedElastic())
+            }
     }
 }

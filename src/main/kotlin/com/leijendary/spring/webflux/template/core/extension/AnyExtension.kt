@@ -1,8 +1,10 @@
 package com.leijendary.spring.webflux.template.core.extension
 
-import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.leijendary.spring.webflux.template.core.util.SpringContext.Companion.getBean
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers.boundedElastic
 import java.lang.reflect.Field
 import kotlin.reflect.KClass
 
@@ -40,13 +42,11 @@ fun Any.reflectSet(property: String, value: Any?): Any? {
 object AnyUtil {
     private val log = logger()
 
-    fun Any.toJson(): String? {
-        try {
-            return mapper.writeValueAsString(this)
-        } catch (e: JsonProcessingException) {
-            log.warn("Failed to parse object to json", e)
-        }
-
-        return null
+    suspend fun Any.toJson(): String? {
+        return Mono
+            .fromCallable { mapper.writeValueAsString(this) }
+            .subscribeOn(boundedElastic())
+            .doOnError { log.warn("Failed to parse object to json", it) }
+            .awaitSingleOrNull()
     }
 }

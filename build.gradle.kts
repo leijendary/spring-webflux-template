@@ -58,6 +58,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.7")
     runtimeOnly("org.postgresql:postgresql:42.3.4")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.6.7")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.4.2.Final")
     testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.7")
     testImplementation("io.projectreactor:reactor-test:3.4.17")
     testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")

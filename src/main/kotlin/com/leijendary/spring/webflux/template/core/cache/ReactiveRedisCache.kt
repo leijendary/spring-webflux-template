@@ -18,17 +18,23 @@ class ReactiveRedisCache(template: ReactiveStringRedisTemplate, private val cach
         return operations
             .get(key)
             .map { it.toClass(type) }
+            .subscribeOn(boundedElastic())
             .awaitSingleOrNull()
     }
 
-    suspend fun <T> set(key: String, value: T): Boolean {
+    suspend fun <T> set(key: String, value: T, withTtl: Boolean = true): Boolean {
         val json = value?.toJson()
 
         if (json != null) {
-            val ttl = cacheProperties.redis.timeToLive
+            val operation = if (withTtl) {
+                val ttl = cacheProperties.redis.timeToLive
 
-            return operations
-                .set(key, json, ttl)
+                operations.set(key, json, ttl)
+            } else {
+                operations.set(key, json)
+            }
+
+            return operation
                 .subscribeOn(boundedElastic())
                 .awaitSingle()
         }
@@ -39,6 +45,7 @@ class ReactiveRedisCache(template: ReactiveStringRedisTemplate, private val cach
     suspend fun delete(key: String): Boolean {
         return operations
             .delete(key)
+            .subscribeOn(boundedElastic())
             .awaitSingle()
     }
 }

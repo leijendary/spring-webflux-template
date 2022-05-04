@@ -13,14 +13,14 @@ class Encryption(keyProperties: KeyProperties) {
 
     suspend fun encrypt(raw: String): String {
         return Mono
-            .fromCallable { encryptor.encrypt(raw) }
+            .just(encryptor.encrypt(raw))
             .subscribeOn(boundedElastic())
             .awaitSingle()
     }
 
     suspend fun decrypt(encrypted: String): String {
         return Mono
-            .fromCallable { encryptor.decrypt(encrypted) }
+            .just(encryptor.decrypt(encrypted))
             .subscribeOn(boundedElastic())
             .awaitSingle()
     }

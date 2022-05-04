@@ -1,6 +1,7 @@
 package com.leijendary.spring.webflux.template.core.data
 
 import com.leijendary.spring.webflux.template.core.extension.fullPath
+import com.leijendary.spring.webflux.template.core.util.RequestContext.now
 import com.leijendary.spring.webflux.template.core.util.RequestContext.request
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
@@ -8,7 +9,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.util.UriComponentsBuilder.fromUriString
-import java.time.LocalDateTime.now
 
 class DataResponse<T>(
     val data: T? = null,
@@ -54,7 +54,7 @@ class DataResponse<T>(
         private val meta: MutableMap<String, Any> = HashMap()
         private val links: MutableMap<String, String?> = HashMap()
 
-        fun build(): DataResponse<T> {
+        suspend fun build(): DataResponse<T> {
             meta["timestamp"] = now()
 
             return DataResponse(data, meta, links)

@@ -3,6 +3,7 @@ package com.leijendary.spring.webflux.template.core.handler
 import com.leijendary.spring.webflux.template.core.data.ErrorResponse
 import com.leijendary.spring.webflux.template.core.error.ErrorMapping
 import com.leijendary.spring.webflux.template.core.extension.AnyUtil.toJson
+import kotlinx.coroutines.reactor.mono
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders.CONTENT_LENGTH
@@ -25,25 +26,29 @@ class GlobalExceptionHandler(errorMappings: List<ErrorMapping>) : ErrorWebExcept
     override fun handle(exchange: ServerWebExchange, throwable: Throwable): Mono<Void> {
         val name = throwable::class.java.canonicalName
         val mapping = errors.getValue(name)
+        val status = mapping.status(throwable)
 
         return Mono
             .fromCallable { mapping.getErrors(exchange, throwable) }
-            .flatMap { errors ->
-                val status = mapping.status(throwable)
-                val json = ErrorResponse
-                    .builder(exchange.request)
-                    .addErrors(errors)
-                    .status(status)
-                    .build()
-                    .toJson()!!
+            .flatMap {
+                mono {
+                    ErrorResponse
+                        .builder(exchange.request)
+                        .addErrors(it)
+                        .status(status)
+                        .build()
+                        .toJson()!!
+                }
+            }
+            .flatMap {
                 val response = exchange.response
                 response.headers[CONTENT_TYPE] = APPLICATION_JSON_VALUE
-                response.headers[CONTENT_LENGTH] = json.length.toString()
+                response.headers[CONTENT_LENGTH] = it.length.toString()
                 response.statusCode = status
 
                 val body = response
                     .bufferFactory()
-                    .wrap(json.toByteArray(UTF_8))
+                    .wrap(it.toByteArray(UTF_8))
                     .toMono()
 
                 response.writeWith(body)

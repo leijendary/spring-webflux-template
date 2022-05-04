@@ -8,6 +8,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers.boundedElastic
 import reactor.kotlin.core.publisher.toMono
 import java.net.URI
 import java.time.LocalDateTime
@@ -25,6 +26,7 @@ object RequestContext {
                 .orElse(null)
                 .toMono()
         }
+        .subscribeOn(boundedElastic())
         .awaitSingle()
 
     suspend fun request(): ServerHttpRequest? = exchange()?.request

@@ -45,8 +45,8 @@ object AnyUtil {
     suspend fun Any.toJson(): String? {
         return Mono
             .fromCallable { mapper.writeValueAsString(this) }
-            .subscribeOn(boundedElastic())
             .doOnError { log.warn("Failed to parse object to json", it) }
+            .subscribeOn(boundedElastic())
             .awaitSingleOrNull()
     }
 }

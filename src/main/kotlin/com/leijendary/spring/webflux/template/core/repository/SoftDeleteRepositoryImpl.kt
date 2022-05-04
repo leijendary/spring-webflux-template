@@ -6,7 +6,6 @@ import org.springframework.data.domain.ReactiveAuditorAware
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers.boundedElastic
 import java.time.LocalDateTime
 
 @Repository
@@ -24,6 +23,5 @@ class SoftDeleteRepositoryImpl<T : SoftDeleteEntity>(
 
                 template.update(entity)
             }
-            .subscribeOn(boundedElastic())
     }
 }

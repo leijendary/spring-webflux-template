@@ -8,10 +8,8 @@ import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
 import com.leijendary.spring.webflux.template.core.extension.emit
 import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.message.SampleMessageProducer
-import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 import reactor.core.publisher.Sinks.many
 import reactor.core.scheduler.Schedulers.boundedElastic
 
@@ -33,23 +31,23 @@ class SampleEvent(
     init {
         createBuffer
             .asFlux()
-            .subscribeOn(boundedElastic())
             .flatMap { mono { createConsumer(it) } }
             .onErrorContinue { t, _ -> errorConsumer(t) }
+            .subscribeOn(boundedElastic())
             .subscribe()
 
         updateBuffer
             .asFlux()
-            .subscribeOn(boundedElastic())
             .flatMap { mono { updateConsumer(it) } }
             .onErrorContinue { t, _ -> errorConsumer(t) }
+            .subscribeOn(boundedElastic())
             .subscribe()
 
         deleteBuffer
             .asFlux()
-            .subscribeOn(boundedElastic())
             .flatMap { mono { deleteConsumer(it) } }
             .onErrorContinue { t, _ -> errorConsumer(t) }
+            .subscribeOn(boundedElastic())
             .subscribe()
     }
 
@@ -70,10 +68,7 @@ class SampleEvent(
 
         reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
 
-        val message = Mono
-            .just(MAPPER.toMessage(sampleResponse))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val message = MAPPER.toMessage(sampleResponse)
 
         sampleMessageProducer.create(message)
 
@@ -85,10 +80,7 @@ class SampleEvent(
 
         reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
 
-        val message = Mono
-            .just(MAPPER.toMessage(sampleResponse))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val message = MAPPER.toMessage(sampleResponse)
 
         sampleMessageProducer.update(message)
 
@@ -100,10 +92,7 @@ class SampleEvent(
 
         reactiveRedisCache.delete("$CACHE_KEY:$id")
 
-        val message = Mono
-            .just(MAPPER.toMessage(sampleResponse))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val message = MAPPER.toMessage(sampleResponse)
 
         sampleMessageProducer.delete(message)
 

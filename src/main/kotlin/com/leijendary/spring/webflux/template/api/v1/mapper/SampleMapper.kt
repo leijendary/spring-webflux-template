@@ -1,11 +1,13 @@
 package com.leijendary.spring.webflux.template.api.v1.mapper
 
-import com.leijendary.spring.webflux.template.api.v1.data.*
+import com.leijendary.spring.webflux.template.api.v1.data.SampleListResponse
+import com.leijendary.spring.webflux.template.api.v1.data.SampleRequest
+import com.leijendary.spring.webflux.template.api.v1.data.SampleResponse
+import com.leijendary.spring.webflux.template.api.v1.data.SampleSearchResponse
 import com.leijendary.spring.webflux.template.data.SampleMessage
 import com.leijendary.spring.webflux.template.document.SampleDocument
 import com.leijendary.spring.webflux.template.document.SampleTranslationDocument
 import com.leijendary.spring.webflux.template.entity.SampleTable
-import com.leijendary.spring.webflux.template.entity.SampleTableTranslation
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.MappingTarget
@@ -22,15 +24,11 @@ interface SampleMapper {
 
     fun toResponse(sampleTable: SampleTable): SampleResponse
 
-    fun toResponse(translations: Set<SampleTableTranslation>): Set<SampleTranslationResponse>
-
     @Mappings(
         Mapping(source = "field1", target = "column1"),
         Mapping(source = "field2", target = "column2")
     )
     fun toEntity(sampleRequest: SampleRequest): SampleTable
-
-    fun toEntity(translations: List<SampleTranslationRequest>): Set<SampleTableTranslation>
 
     @Mappings(
         Mapping(source = "translation.name", target = "name"),

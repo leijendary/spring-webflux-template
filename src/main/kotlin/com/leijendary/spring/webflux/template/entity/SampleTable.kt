@@ -2,10 +2,7 @@ package com.leijendary.spring.webflux.template.entity
 
 import com.leijendary.spring.webflux.template.core.entity.SeekEntity
 import com.leijendary.spring.webflux.template.core.entity.SoftDeleteEntity
-import org.springframework.data.annotation.CreatedBy
-import org.springframework.data.annotation.LastModifiedBy
-import org.springframework.data.annotation.LastModifiedDate
-import org.springframework.data.annotation.Version
+import org.springframework.data.annotation.*
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.math.BigDecimal
@@ -35,4 +32,7 @@ class SampleTable : SeekEntity(), SoftDeleteEntity {
 
     override var deletedAt: LocalDateTime? = null
     override var deletedBy: String? = null
+
+    @Transient
+    var translations: Set<SampleTableTranslation> = mutableSetOf()
 }

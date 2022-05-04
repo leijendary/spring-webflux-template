@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers.boundedElastic
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.util.*
@@ -72,10 +71,7 @@ class SampleSearch(
     }
 
     suspend fun save(sampleResponse: SampleResponse): SampleDocument {
-        val document = Mono
-            .just(MAPPER.toDocument(sampleResponse))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val document = MAPPER.toDocument(sampleResponse)
 
         return sampleSearchRepository
             .save(document)
@@ -84,47 +80,39 @@ class SampleSearch(
     }
 
     suspend fun save(sampleResponses: List<SampleResponse>): Flow<SampleDocument> {
-        return Mono
-            .just(sampleResponses)
+        val list = sampleResponses.map { MAPPER.toDocument(it) }
+
+        return sampleSearchRepository
+            .saveAll(list)
             .subscribeOn(boundedElastic())
-            .map { responses -> responses.map { MAPPER.toDocument(it) } }
-            .flatMapMany { sampleSearchRepository.saveAll(it) }
             .asFlow()
     }
 
     suspend fun get(id: UUID): SampleSearchResponse {
         val document = sampleSearchRepository
             .findById(id)
-            .subscribeOn(boundedElastic())
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
+            .subscribeOn(boundedElastic())
             .awaitSingle()
         val language = language()
+        val translation = document.translation(language)
 
-        return Mono
-            .just(language)
-            .subscribeOn(boundedElastic())
-            .map { document.translation(it) }
-            .map { MAPPER.toSearchResponse(document, it) }
-            .awaitSingle()
+        return MAPPER.toSearchResponse(document, translation)
     }
 
     suspend fun update(sampleResponse: SampleResponse): SampleSearchResponse {
         val id = sampleResponse.id
         val document = sampleSearchRepository
             .findById(id)
-            .subscribeOn(boundedElastic())
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .doOnNext { MAPPER.update(sampleResponse, it) }
             .flatMap { sampleSearchRepository.save(it) }
+            .subscribeOn(boundedElastic())
             .awaitSingle()
         val language = language()
+        val translation = document.translation(language)
 
-        return Mono
-            .just(language)
-            .subscribeOn(boundedElastic())
-            .map { document.translation(it) }
-            .map { MAPPER.toSearchResponse(document, it) }
-            .awaitSingle()
+        return MAPPER.toSearchResponse(document, translation)
     }
 
     suspend fun delete(id: UUID) {

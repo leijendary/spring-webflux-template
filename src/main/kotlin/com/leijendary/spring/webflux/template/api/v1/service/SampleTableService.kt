@@ -26,7 +26,6 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
-import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers.boundedElastic
 import reactor.core.scheduler.Schedulers.parallel
 import reactor.kotlin.core.publisher.switchIfEmpty
@@ -54,8 +53,8 @@ class SampleTableService(
             ?: sampleTableRepository.query(query, seekable.limit)
 
         return flux
-            .subscribeOn(boundedElastic())
             .contextWrite { readOnlyContext(it) }
+            .subscribeOn(boundedElastic())
             .asFlow()
             .toList(mutableListOf())
             .let { SeekFactory.create(it, seekable) }
@@ -63,14 +62,7 @@ class SampleTableService(
     }
 
     suspend fun create(sampleRequest: SampleRequest): SampleResponse {
-        var sampleTable = Mono
-            .just(MAPPER.toEntity(sampleRequest))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
-        var sampleTableTranslations = Mono
-            .just(MAPPER.toEntity(sampleRequest.translations!!))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        var sampleTable = MAPPER.toEntity(sampleRequest)
         val id = ReactiveUUID.v4()
 
         sampleTable.id = id
@@ -80,21 +72,14 @@ class SampleTableService(
                 .save(sampleTable)
                 .subscribeOn(boundedElastic())
                 .awaitSingle()
-            sampleTableTranslations = sampleTableTranslationRepository
-                .save(id, sampleTableTranslations)
+            sampleTable.translations = sampleTableTranslationRepository
+                .save(id, sampleTable.translations)
                 .subscribeOn(boundedElastic())
                 .asFlow()
                 .toSet(mutableSetOf())
         }
 
-        val response = Mono
-            .just(MAPPER.toResponse(sampleTable))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
-        response.translations = Mono
-            .just(MAPPER.toResponse(sampleTableTranslations))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val response = MAPPER.toResponse(sampleTable)
 
         sampleEvent.create(response)
 
@@ -111,25 +96,18 @@ class SampleTableService(
 
         val sampleTable = sampleTableRepository
             .get(id)
-            .subscribeOn(boundedElastic())
             .contextWrite { readOnlyContext(it) }
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
-            .awaitSingle()
-        val sampleTableTranslations = sampleTableTranslationRepository
-            .findByReferenceId(id)
             .subscribeOn(boundedElastic())
+            .awaitSingle()
+        sampleTable.translations = sampleTableTranslationRepository
+            .findByReferenceId(id)
             .contextWrite { readOnlyContext(it) }
+            .subscribeOn(boundedElastic())
             .asFlow()
             .toSet(mutableSetOf())
 
-        val response = Mono
-            .just(MAPPER.toResponse(sampleTable))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
-        response.translations = Mono
-            .just(MAPPER.toResponse(sampleTableTranslations))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val response = MAPPER.toResponse(sampleTable)
 
         this.reactiveRedisCache.set(key, response)
 
@@ -139,19 +117,15 @@ class SampleTableService(
     suspend fun update(id: UUID, sampleRequest: SampleRequest): SampleResponse {
         var sampleTable = sampleTableRepository
             .get(id)
-            .subscribeOn(boundedElastic())
             .contextWrite { readOnlyContext(it) }
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .doOnNext { MAPPER.update(sampleRequest, it) }
-            .awaitSingle()
-        var sampleTableTranslations = Mono
-            .just(MAPPER.toEntity(sampleRequest.translations!!))
             .subscribeOn(boundedElastic())
             .awaitSingle()
         val oldTranslations = sampleTableTranslationRepository
             .findByReferenceId(id)
-            .subscribeOn(boundedElastic())
             .contextWrite { readOnlyContext(it) }
+            .subscribeOn(boundedElastic())
             .asFlow()
             .toSet(mutableSetOf())
 
@@ -160,21 +134,14 @@ class SampleTableService(
                 .save(sampleTable)
                 .subscribeOn(boundedElastic())
                 .awaitSingle()
-            sampleTableTranslations = sampleTableTranslationRepository
-                .save(id, oldTranslations, sampleTableTranslations)
+            sampleTable.translations = sampleTableTranslationRepository
+                .save(id, oldTranslations, sampleTable.translations)
                 .subscribeOn(boundedElastic())
                 .asFlow()
                 .toSet(mutableSetOf())
         }
 
-        val response = Mono
-            .just(MAPPER.toResponse(sampleTable))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
-        response.translations = Mono
-            .just(MAPPER.toResponse(sampleTableTranslations))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val response = MAPPER.toResponse(sampleTable)
 
         sampleEvent.update(response)
 
@@ -184,31 +151,23 @@ class SampleTableService(
     suspend fun delete(id: UUID) {
         val sampleTable = sampleTableRepository
             .get(id)
-            .subscribeOn(boundedElastic())
             .contextWrite { readOnlyContext(it) }
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
+            .subscribeOn(boundedElastic())
             .awaitSingle()
+        sampleTable.translations = sampleTableTranslationRepository
+            .findByReferenceId(id)
+            .contextWrite { readOnlyContext(it) }
+            .subscribeOn(boundedElastic())
+            .asFlow()
+            .toSet(mutableSetOf())
 
         sampleTableRepository
             .softDelete(sampleTable)
             .subscribeOn(boundedElastic())
             .awaitSingle()
 
-        val sampleTableTranslations = sampleTableTranslationRepository
-            .findByReferenceId(id)
-            .subscribeOn(boundedElastic())
-            .contextWrite { readOnlyContext(it) }
-            .asFlow()
-            .toSet(mutableSetOf())
-
-        val response = Mono
-            .just(MAPPER.toResponse(sampleTable))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
-        response.translations = Mono
-            .just(MAPPER.toResponse(sampleTableTranslations))
-            .subscribeOn(boundedElastic())
-            .awaitSingle()
+        val response = MAPPER.toResponse(sampleTable)
 
         sampleEvent.delete(response)
     }
@@ -224,18 +183,15 @@ class SampleTableService(
             .runOn(parallel())
             .collect { list ->
                 val responses = list.map { sampleTable ->
-                    val translations = sampleTableTranslationRepository
+                    sampleTable.translations = sampleTableTranslationRepository
                         .findByReferenceId(sampleTable.id)
                         .contextWrite { readOnlyContext(it) }
                         .asFlow()
                         .toSet(mutableSetOf())
 
-                    val response = MAPPER.toResponse(sampleTable)
-                    response.translations = MAPPER.toResponse(translations)
-
                     count++
 
-                    response
+                    MAPPER.toResponse(sampleTable)
                 }
 
                 sampleSearch

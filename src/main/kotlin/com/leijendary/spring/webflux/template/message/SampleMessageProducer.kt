@@ -1,6 +1,5 @@
 package com.leijendary.spring.webflux.template.message
 
-import com.leijendary.spring.webflux.template.core.extension.AnyUtil.toJson
 import com.leijendary.spring.webflux.template.core.extension.emit
 import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.core.message.MessageProducer
@@ -44,23 +43,17 @@ class SampleMessageProducer : MessageProducer<SampleMessage>() {
         val message = message(sampleMessage)
 
         createBuffer.emit(message)
-
-        log.info("Create sent: {}", sampleMessage.toJson())
     }
 
     suspend fun update(sampleMessage: SampleMessage) {
         val message = message(sampleMessage)
 
         updateBuffer.emit(message)
-
-        log.info("Update sent: {}", sampleMessage.toJson())
     }
 
     suspend fun delete(sampleMessage: SampleMessage) {
         val message = message(sampleMessage)
 
         deleteBuffer.emit(message)
-
-        log.info("Delete sent: {}", sampleMessage.toJson())
     }
 }

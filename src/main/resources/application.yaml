@@ -150,6 +150,9 @@ spring:
     uris:
   kafka:
     bootstrapServers:
+    properties:
+      interceptor:
+        classes: com.leijendary.spring.webflux.template.core.interceptor.KafkaLoggingInterceptor
   redis:
     host:
     port:

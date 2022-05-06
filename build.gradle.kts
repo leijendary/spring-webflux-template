@@ -1,3 +1,22 @@
+val springVersion: String by project
+val starterAwsVersion: String by project
+val starterLoadBalancerVersion: String by project
+val starterSleuthVersion: String by project
+val starterStreamVersion: String by project
+val jacksonVersion: String by project
+val reactorKotlinVersion: String by project
+val kotlinxVersion: String by project
+val liquibaseVersion: String by project
+val mapstructVersion: String by project
+val springJdbcVersion: String by project
+val caffeineVersion: String by project
+val openapiVersion: String by project
+val r2dbcPostgresqlVersion: String by project
+val postgresqlVersion: String by project
+val reactorTestVersion: String by project
+val blockhoundVersion: String by project
+val springCloudVersion: String by project
+
 plugins {
     id("org.springframework.boot") version "2.6.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
@@ -29,40 +48,47 @@ kapt {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator:2.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-aop:2.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:2.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:2.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:2.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-validation:2.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-webflux:2.6.7")
-    implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
-    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:3.1.1")
-    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:3.2.2")
-    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:3.2.2")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.6")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-aop:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-validation:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:$springVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-aws:$starterAwsVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:$starterLoadBalancerVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$starterSleuthVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:$starterStreamVersion")
+    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:$starterStreamVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorKotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1-native-mt")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.1-native-mt")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.1-native-mt")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.1-native-mt")
-    implementation("org.liquibase:liquibase-core:4.9.1")
-    implementation("org.mapstruct:mapstruct:1.4.2.Final")
-    implementation("org.springframework:spring-jdbc:5.3.19")
-    implementation("com.github.ben-manes.caffeine:caffeine:3.0.6")
-    implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.8")
-    implementation("io.r2dbc:r2dbc-postgresql:0.8.12.RELEASE")
-    developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.7")
-    runtimeOnly("org.postgresql:postgresql:42.3.4")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.6.7")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.4.2.Final")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.7")
-    testImplementation("io.projectreactor:reactor-test:3.4.17")
-    testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
-    kapt("org.mapstruct:mapstruct-processor:1.4.2.Final")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinxVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinxVersion")
+    implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    implementation("org.mapstruct:mapstruct:$mapstructVersion")
+    implementation("org.springframework:spring-jdbc:$springJdbcVersion")
+    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:$openapiVersion")
+    implementation("io.r2dbc:r2dbc-postgresql:$r2dbcPostgresqlVersion")
+    developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")
+    runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
+    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$kotlinxVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springVersion")
+    testImplementation("io.projectreactor:reactor-test:$reactorTestVersion")
+    testImplementation("io.projectreactor.tools:blockhound:$blockhoundVersion")
+    kapt("org.mapstruct:mapstruct-processor:$mapstructVersion")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+    }
 }
 
 tasks.compileKotlin {

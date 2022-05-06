@@ -34,5 +34,5 @@ class SampleTable : SeekEntity(), SoftDeleteEntity {
     override var deletedBy: String? = null
 
     @Transient
-    var translations: Set<SampleTableTranslation> = mutableSetOf()
+    var translations: List<SampleTableTranslation> = mutableListOf()
 }

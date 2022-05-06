@@ -117,9 +117,14 @@ spring:
           destination: \${info.app.organization}.sample.delete
         sampleDeleted-in-0:
           destination: \${info.app.organization}.sample.delete
+      default:
+        group: \${info.app.name}
       kafka:
         binder:
           autoAddPartitions: true
+        default:
+          consumer:
+            enableDlq: true
         streams:
           binder:
             deserializationExceptionHandler: sendToDlq
@@ -136,16 +141,6 @@ spring:
                 applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
               sampleDeleted:
                 applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
-          bindings:
-            sampleCreated-in-0:
-              consumer:
-                dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleCreated-in-0.destination}
-            sampleUpdated-in-0:
-              consumer:
-                dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleUpdated-in-0.destination}
-            sampleDeleted-in-0:
-              consumer:
-                dlqName: \${info.app.name}.error.\${spring.cloud.stream.bindings.sampleDeleted-in-0.destination}
   elasticsearch:
     uris:
   kafka:
@@ -156,6 +151,12 @@ spring:
   redis:
     host:
     port:
+  sleuth:
+    messaging:
+      kafka:
+        streams:
+          enabled: true
+    traceId128: true
 
 server:
   http2:

@@ -7,7 +7,6 @@ import com.leijendary.spring.webflux.template.api.v1.data.SampleTranslationReque
 import com.leijendary.spring.webflux.template.core.data.DataResponse
 import com.leijendary.spring.webflux.template.core.extension.scaled
 import com.leijendary.spring.webflux.template.core.extension.toClass
-import com.leijendary.spring.webflux.template.core.util.HEADER_TRACE_ID
 import com.leijendary.spring.webflux.template.core.util.HEADER_USER_ID
 import liquibase.repackaged.org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
@@ -59,7 +58,6 @@ class SampleSearchRestTest(
                 .uri(sampleUrl)
                 .bodyValue(it)
                 .header(HEADER_USER_ID, this.userId)
-                .header(HEADER_TRACE_ID, random.nextLong().toString())
                 .exchange()
                 .expectBody(DataResponse::class.java)
                 .returnResult()
@@ -148,7 +146,6 @@ class SampleSearchRestTest(
             .uri(sampleUrl)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
-            .header(HEADER_TRACE_ID, random.nextLong().toString())
             .exchange()
             .expectBody()
             .returnResult()
@@ -192,7 +189,6 @@ class SampleSearchRestTest(
             .uri(sampleUrl)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
-            .header(HEADER_TRACE_ID, random.nextLong().toString())
             .exchange()
             .expectBody()
             .returnResult()
@@ -208,7 +204,6 @@ class SampleSearchRestTest(
             .delete()
             .uri(sampleUri)
             .header(HEADER_USER_ID, this.userId)
-            .header(HEADER_TRACE_ID, random.nextLong().toString())
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty

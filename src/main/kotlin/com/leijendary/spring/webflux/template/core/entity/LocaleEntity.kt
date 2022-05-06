@@ -14,10 +14,10 @@ abstract class LocaleEntity : AppEntity() {
     var ordinal: Int = 0
 
     companion object {
-        fun <T : LocaleEntity> isolate(oldTranslations: Set<T>, newTranslations: Set<T>): LocaleIsolation<T> {
-            val creates = mutableSetOf<T>()
-            val updates = mutableSetOf<T>()
-            val deletes = mutableSetOf<T>()
+        fun <T : LocaleEntity> isolate(oldTranslations: List<T>, newTranslations: List<T>): LocaleIsolation<T> {
+            val creates = mutableListOf<T>()
+            val updates = mutableListOf<T>()
+            val deletes = mutableListOf<T>()
 
             oldTranslations.forEach { o ->
                 if (o.language !in newTranslations.map { it.language }) {

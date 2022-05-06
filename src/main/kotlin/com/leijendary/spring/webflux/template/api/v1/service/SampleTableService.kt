@@ -19,7 +19,6 @@ import com.leijendary.spring.webflux.template.repository.SampleTableRepository
 import com.leijendary.spring.webflux.template.repository.SampleTableTranslationRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.collect
 import kotlinx.coroutines.reactor.awaitSingle
@@ -76,7 +75,7 @@ class SampleTableService(
                 .save(id, sampleTable.translations)
                 .subscribeOn(boundedElastic())
                 .asFlow()
-                .toSet(mutableSetOf())
+                .toList(mutableListOf())
         }
 
         val response = MAPPER.toResponse(sampleTable)
@@ -105,7 +104,7 @@ class SampleTableService(
             .contextWrite { readOnlyContext(it) }
             .subscribeOn(boundedElastic())
             .asFlow()
-            .toSet(mutableSetOf())
+            .toList(mutableListOf())
 
         val response = MAPPER.toResponse(sampleTable)
 
@@ -127,7 +126,7 @@ class SampleTableService(
             .contextWrite { readOnlyContext(it) }
             .subscribeOn(boundedElastic())
             .asFlow()
-            .toSet(mutableSetOf())
+            .toList(mutableListOf())
 
         transactionalOperator.executeAndAwait {
             sampleTable = sampleTableRepository
@@ -138,7 +137,7 @@ class SampleTableService(
                 .save(id, oldTranslations, sampleTable.translations)
                 .subscribeOn(boundedElastic())
                 .asFlow()
-                .toSet(mutableSetOf())
+                .toList(mutableListOf())
         }
 
         val response = MAPPER.toResponse(sampleTable)
@@ -160,7 +159,7 @@ class SampleTableService(
             .contextWrite { readOnlyContext(it) }
             .subscribeOn(boundedElastic())
             .asFlow()
-            .toSet(mutableSetOf())
+            .toList(mutableListOf())
 
         sampleTableRepository
             .softDelete(sampleTable)
@@ -187,7 +186,7 @@ class SampleTableService(
                         .findByReferenceId(sampleTable.id)
                         .contextWrite { readOnlyContext(it) }
                         .asFlow()
-                        .toSet(mutableSetOf())
+                        .toList(mutableListOf())
 
                     count++
 

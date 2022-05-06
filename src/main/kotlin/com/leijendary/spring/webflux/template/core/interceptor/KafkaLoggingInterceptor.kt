@@ -8,7 +8,12 @@ import org.apache.kafka.clients.producer.ProducerInterceptor
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.TopicPartition
+import org.slf4j.MDC
 import org.springframework.stereotype.Component
+
+private const val HEADER_B3 = "b3"
+private const val MDC_TRACE_ID = "traceId"
+private const val MDC_SPAN_ID = "spanId"
 
 @Component
 class KafkaLoggingInterceptor : ProducerInterceptor<String, Any>, ConsumerInterceptor<String, Any> {
@@ -32,7 +37,17 @@ class KafkaLoggingInterceptor : ProducerInterceptor<String, Any>, ConsumerInterc
             val key = it.key()
             val payload = String(it.value() as ByteArray)
 
+            it.headers().lastHeader(HEADER_B3)?.let { header ->
+                val value = String(header.value()).split("-")
+
+                MDC.put(MDC_TRACE_ID, value[0])
+                MDC.put(MDC_SPAN_ID, value[1])
+            }
+
             log.info("Received from topic '$topic' on partition '$partition' with key '$key' and payload '$payload'")
+
+            MDC.remove(MDC_TRACE_ID)
+            MDC.remove(MDC_SPAN_ID)
         }
 
         return records

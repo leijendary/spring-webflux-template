@@ -9,7 +9,7 @@ import java.util.*
 
 @Repository
 class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTemplate) : LocaleRepository<T> {
-    override fun save(referenceId: UUID, translations: Set<T>): Flux<T> {
+    override fun save(referenceId: UUID, translations: List<T>): Flux<T> {
         return translations
             .toFlux()
             .flatMap {
@@ -19,7 +19,7 @@ class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTe
             }
     }
 
-    override fun save(referenceId: UUID, oldTranslations: Set<T>, newTranslations: Set<T>): Flux<T> {
+    override fun save(referenceId: UUID, oldTranslations: List<T>, newTranslations: List<T>): Flux<T> {
         val isolation = LocaleEntity.isolate(oldTranslations, newTranslations)
 
         return Flux
@@ -30,13 +30,13 @@ class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTe
             .doOnNext { delete(isolation.deletes) }
     }
 
-    private fun update(translations: Set<T>): Flux<T> {
+    private fun update(translations: List<T>): Flux<T> {
         return translations
             .toFlux()
             .flatMap { template.update(it) }
     }
 
-    private fun delete(translations: Set<T>): Flux<T> {
+    private fun delete(translations: List<T>): Flux<T> {
         return translations
             .toFlux()
             .flatMap { template.delete(it) }

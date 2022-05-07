@@ -34,6 +34,7 @@
 - Reactor Test
 - BlockHound
 - OpenAPI
+- Prometheus
 
 # Spring Microservice WebFlux
 

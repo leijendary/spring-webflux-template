@@ -16,6 +16,7 @@ val postgresqlVersion: String by project
 val reactorTestVersion: String by project
 val blockhoundVersion: String by project
 val springCloudVersion: String by project
+val prometheusVersion: String by project
 
 plugins {
     id("org.springframework.boot") version "2.6.7"
@@ -75,6 +76,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-webflux-ui:$openapiVersion")
     implementation("io.r2dbc:r2dbc-postgresql:$r2dbcPostgresqlVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus:$prometheusVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
     annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")

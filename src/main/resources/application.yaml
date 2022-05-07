@@ -166,6 +166,12 @@ server:
 springdoc:
   pathsToMatch: /api/**
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+
 logging:
   level:
     liquibase:

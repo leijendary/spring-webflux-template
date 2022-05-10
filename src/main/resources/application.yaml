@@ -130,17 +130,17 @@ spring:
             deserializationExceptionHandler: sendToDlq
             functions:
               sampleCreate:
-                applicationId: \${info.app.name}.\${info.app.organization}.sample.create
+                applicationId: \${info.app.name}.\${spring.cloud.stream.bindings.sampleCreate-out-0.destination}
               sampleCreated:
-                applicationId: \${info.app.name}.\${info.app.organization}.sample.create
+                applicationId: \${info.app.name}.\${spring.cloud.stream.bindings.sampleCreated-in-0.destination}
               sampleUpdate:
-                applicationId: \${info.app.name}.\${info.app.organization}.sample.update
+                applicationId: \${info.app.name}.\${spring.cloud.stream.bindings.sampleUpdate-out-0.destination}
               sampleUpdated:
-                applicationId: \${info.app.name}.\${info.app.organization}.sample.update
+                applicationId: \${info.app.name}.\${spring.cloud.stream.bindings.sampleUpdated-in-0.destination}
               sampleDelete:
-                applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
+                applicationId: \${info.app.name}.\${spring.cloud.stream.bindings.sampleDelete-out-0.destination}
               sampleDeleted:
-                applicationId: \${info.app.name}.\${info.app.organization}.sample.delete
+                applicationId: \${info.app.name}.\${spring.cloud.stream.bindings.sampleDeleted-in-0.destination}
   elasticsearch:
     uris:
   kafka:

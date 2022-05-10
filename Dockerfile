@@ -2,6 +2,7 @@ FROM gradle:7-jdk17 as build
 WORKDIR /workspace/app
 COPY src src
 COPY build.gradle.kts .
+COPY gradle.properties .
 COPY settings.gradle.kts .
 RUN --mount=type=cache,target=/root/.m2 gradle bootJar -x test
 RUN mkdir -p build/dependency && (cd build/dependency; jar -xf ../libs/*.jar)

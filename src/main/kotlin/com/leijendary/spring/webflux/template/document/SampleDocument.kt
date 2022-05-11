@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.annotations.FieldType
 import org.springframework.data.elasticsearch.annotations.FieldType.*
 import org.springframework.data.elasticsearch.annotations.FieldType.Date
+import org.springframework.data.elasticsearch.annotations.FieldType.Double
 import org.springframework.data.elasticsearch.annotations.Setting
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -26,7 +27,7 @@ data class SampleDocument(
     @Field(type = FieldType.Long)
     var column2: Long,
 
-    @Field(type = Text)
+    @Field(type = Double)
     var amount: BigDecimal,
 
     @Field(type = Date, format = [date_hour_minute_second_millis])

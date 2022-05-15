@@ -2,6 +2,7 @@ val springVersion: String by project
 val starterAwsVersion: String by project
 val starterLoadBalancerVersion: String by project
 val starterSleuthVersion: String by project
+val starterZipkinVersion: String by project
 val starterStreamVersion: String by project
 val jacksonVersion: String by project
 val reactorKotlinVersion: String by project
@@ -59,6 +60,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-aws:$starterAwsVersion")
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:$starterLoadBalancerVersion")
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$starterSleuthVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-zipkin:$starterZipkinVersion")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:$starterStreamVersion")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:$starterStreamVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")

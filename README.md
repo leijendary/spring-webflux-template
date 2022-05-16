@@ -20,6 +20,7 @@
 - Spring Cloud Stream Binder Kafka Streams
 - Spring Cloud AWS
 - Spring Cloud Sleuth
+- Spring Cloud Zipkin
 - Spring Configuration Processor
 - Spring Autoconfigure Processor
 - Spring Devtools

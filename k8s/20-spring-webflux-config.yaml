@@ -22,3 +22,4 @@ data:
   SPRING_REDIS_HOST: redis-service.cache.svc.cluster.local
   SPRING_REDIS_PORT: "6379"
   AWS_EC2_METADATA_DISABLED: "true"
+  SPRING_ZIPKIN_BASE_URL: http://jaeger-service.monitoring.svc.cluster.local:9411/

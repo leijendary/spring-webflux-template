@@ -160,8 +160,7 @@ spring:
   zipkin:
     service:
       name: \${info.app.name}
-    sender:
-      type: kafka
+    baseUrl:
 
 server:
   http2:

@@ -26,6 +26,7 @@ spec:
                 name: spring-webflux-secret
           readinessProbe:
             httpGet:
+              scheme: HTTPS
               path: /actuator/health
               port: 443
             initialDelaySeconds: 200
@@ -33,6 +34,7 @@ spec:
             periodSeconds: 15
           livenessProbe:
             httpGet:
+              scheme: HTTPS
               path: /actuator/health
               port: 443
             initialDelaySeconds: 300
@@ -59,7 +61,7 @@ spec:
     app: spring-webflux
   type: NodePort
   ports:
-    - name: http
+    - name: https
       protocol: TCP
       port: 443
       targetPort: 443

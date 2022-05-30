@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.MediaType.TEXT_HTML_VALUE
 import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import java.time.format.TextStyle.FULL
@@ -42,7 +43,6 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/samples")
 @Tag(name = "Sample")
 class SampleRest(private val sampleClient: SampleClient, private val sampleTableService: SampleTableService) {
-
     /**
      * This is a sample RequestMapping (Only GET method, that is why I used
      * [GetMapping])
@@ -51,6 +51,7 @@ class SampleRest(private val sampleClient: SampleClient, private val sampleTable
      * recommended that the request parameters contains [Seekable]
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('urn:sample:list:v1')")
     @Operation(summary = "Sample implementation of swagger in a api")
     suspend fun seek(query: String? = "", seekable: Seekable): DataResponse<List<SampleListResponse>> =
         sampleTableService
@@ -58,6 +59,7 @@ class SampleRest(private val sampleClient: SampleClient, private val sampleTable
             .let { DataResponse.from(it) }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('urn:sample:create:v1')")
     @ResponseStatus(CREATED)
     @Operation(summary = "Saves a sample record into the database")
     suspend fun create(@Valid @RequestBody request: SampleRequest): DataResponse<SampleResponse> = sampleTableService
@@ -65,12 +67,14 @@ class SampleRest(private val sampleClient: SampleClient, private val sampleTable
         .let { DataResponse.of(it, CREATED) }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAuthority('urn:sample:get:v1')")
     @Operation(summary = "Retrieves the sample record from the database")
     suspend fun get(@PathVariable id: UUID): DataResponse<SampleResponse> = sampleTableService
         .get(id)
         .let { DataResponse.of(it) }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAuthority('urn:sample:update:v1')")
     @Operation(summary = "Updates the sample record into the database")
     suspend fun update(
         @PathVariable id: UUID,
@@ -81,6 +85,7 @@ class SampleRest(private val sampleClient: SampleClient, private val sampleTable
 
     @DeleteMapping("{id}")
     @ResponseStatus(NO_CONTENT)
+    @PreAuthorize("hasAuthority('urn:sample:delete:v1')")
     @Operation(summary = "Removes the sample record from the database")
     suspend fun delete(@PathVariable id: UUID) = sampleTableService.delete(id)
 

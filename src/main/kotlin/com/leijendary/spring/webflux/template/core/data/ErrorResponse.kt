@@ -1,6 +1,7 @@
 package com.leijendary.spring.webflux.template.core.data
 
 import com.leijendary.spring.webflux.template.core.extension.fullPath
+import io.opentelemetry.api.trace.Span
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -12,11 +13,12 @@ class ErrorResponse(
     val links: Map<String, String?> = emptyMap()
 ) : Response {
     companion object {
-        fun builder(request: ServerHttpRequest): ErrorResponseBuilder {
+        fun builder(request: ServerHttpRequest, span: Span): ErrorResponseBuilder {
             return ErrorResponseBuilder(request)
                 .status(INTERNAL_SERVER_ERROR)
                 .meta("requestId", request.id)
                 .selfLink()
+                .traceId(span)
         }
     }
 
@@ -57,6 +59,12 @@ class ErrorResponse(
 
         fun selfLink(): ErrorResponseBuilder {
             links["self"] = request.uri.fullPath()
+
+            return this
+        }
+
+        fun traceId(span: Span): ErrorResponseBuilder {
+            meta["traceId"] = span.spanContext.traceId
 
             return this
         }

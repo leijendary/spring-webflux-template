@@ -18,7 +18,7 @@ spec:
         - name: spring-webflux
           image: spring-webflux:latest
           ports:
-            - containerPort: 80
+            - containerPort: 443
           envFrom:
             - configMapRef:
                 name: spring-webflux-config
@@ -27,14 +27,14 @@ spec:
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 80
+              port: 443
             initialDelaySeconds: 200
             timeoutSeconds: 5
             periodSeconds: 15
           livenessProbe:
             httpGet:
               path: /actuator/health
-              port: 80
+              port: 443
             initialDelaySeconds: 300
             timeoutSeconds: 5
             periodSeconds: 15
@@ -61,6 +61,6 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 80
-      targetPort: 80
-      nodePort: 30080
+      port: 443
+      targetPort: 443
+      nodePort: 30443

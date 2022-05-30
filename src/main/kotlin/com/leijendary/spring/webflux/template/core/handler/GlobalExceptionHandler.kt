@@ -3,6 +3,7 @@ package com.leijendary.spring.webflux.template.core.handler
 import com.leijendary.spring.webflux.template.core.data.ErrorResponse
 import com.leijendary.spring.webflux.template.core.error.ErrorMapping
 import com.leijendary.spring.webflux.template.core.extension.AnyUtil.toJson
+import io.opentelemetry.api.trace.Span
 import kotlinx.coroutines.reactor.mono
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler
 import org.springframework.core.annotation.Order
@@ -24,6 +25,7 @@ class GlobalExceptionHandler(errorMappings: List<ErrorMapping>) : ErrorWebExcept
         .withDefault { errorMappings.last() }
 
     override fun handle(exchange: ServerWebExchange, throwable: Throwable): Mono<Void> {
+        val span = Span.current()
         val name = throwable::class.java.canonicalName
         val mapping = errors.getValue(name)
         val status = mapping.status(throwable)
@@ -33,7 +35,7 @@ class GlobalExceptionHandler(errorMappings: List<ErrorMapping>) : ErrorWebExcept
             .flatMap {
                 mono {
                     ErrorResponse
-                        .builder(exchange.request)
+                        .builder(exchange.request, span)
                         .addErrors(it)
                         .status(status)
                         .build()

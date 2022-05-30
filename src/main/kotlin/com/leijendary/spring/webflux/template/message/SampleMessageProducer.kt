@@ -1,7 +1,6 @@
 package com.leijendary.spring.webflux.template.message
 
 import com.leijendary.spring.webflux.template.core.extension.emit
-import com.leijendary.spring.webflux.template.core.extension.logger
 import com.leijendary.spring.webflux.template.core.message.MessageProducer
 import com.leijendary.spring.webflux.template.data.SampleMessage
 import org.springframework.context.annotation.Bean
@@ -13,7 +12,6 @@ import java.util.function.Supplier
 
 @Component
 class SampleMessageProducer : MessageProducer<SampleMessage>() {
-    private val log = logger()
     private val createBuffer = many().multicast().onBackpressureBuffer<Message<SampleMessage>>()
     private val updateBuffer = many().multicast().onBackpressureBuffer<Message<SampleMessage>>()
     private val deleteBuffer = many().multicast().onBackpressureBuffer<Message<SampleMessage>>()

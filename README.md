@@ -13,6 +13,7 @@
 - Spring Actuator
 - Spring R2DBC
 - Spring WebClient
+- Spring Security
 - Spring Cloud Loadbalancer
 - Spring Data Reactive Redis
 - Spring Data Elasticsearch
@@ -20,7 +21,7 @@
 - Spring Cloud Stream Binder Kafka Streams
 - Spring Cloud AWS
 - Spring Cloud Sleuth
-- Spring Cloud Zipkin
+- Spring Cloud OpenTelemetry
 - Spring Configuration Processor
 - Spring Autoconfigure Processor
 - Spring Devtools
@@ -50,3 +51,7 @@
 ### To build a JAR file:
 
 `./gradlew bootJar -x test`
+
+### To generate a certificate:
+
+`keytool -genkeypair -alias spring-boot -keyalg RSA -keysize 2048 -validity 3650 -keypass spring-boot -storetype PKCS12 -keystore keystore.p12`

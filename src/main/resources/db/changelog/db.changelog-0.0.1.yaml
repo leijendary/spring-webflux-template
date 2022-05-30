@@ -154,3 +154,18 @@ databaseChangeLog:
                   descending: true
             indexName: sample_table_created_at_row_id_idx
             tableName: sample_table
+  - changeSet:
+      id: drop-sample-table-column-1-unique-constraint
+      author: Leijendekker
+      changes:
+        - dropIndex:
+            indexName: sample_table_column_1_uindex
+            tableName: sample_table
+  - changeSet:
+      id: add-sample-table-column-1-case-insensitive-unique-constraint
+      author: Leijendekker
+      changes:
+        - sql:
+            sql: create unique index sample_table_column_1_uindex
+              on sample_table (lower(column_1))
+              where deleted_at is null;

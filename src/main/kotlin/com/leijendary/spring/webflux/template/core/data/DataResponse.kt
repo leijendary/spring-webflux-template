@@ -3,6 +3,7 @@ package com.leijendary.spring.webflux.template.core.data
 import com.leijendary.spring.webflux.template.core.extension.fullPath
 import com.leijendary.spring.webflux.template.core.util.RequestContext.now
 import com.leijendary.spring.webflux.template.core.util.RequestContext.request
+import io.opentelemetry.api.trace.Span
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
@@ -23,6 +24,7 @@ class DataResponse<T>(
                 .status(OK)
                 .meta("requestId", request.id)
                 .selfLink()
+                .traceId()
         }
 
         suspend fun <T> of(body: T, httpStatus: HttpStatus = OK): DataResponse<T> {
@@ -126,6 +128,12 @@ class DataResponse<T>(
             if (nextToken != null) {
                 links["next"] = createLink(nextToken, limit)
             }
+
+            return this
+        }
+
+        fun traceId(): DataResponseBuilder<T> {
+            meta["traceId"] = Span.current().spanContext.traceId
 
             return this
         }

@@ -54,6 +54,8 @@ class DataIntegrityViolationErrorMapping(private val messageSource: MessageSourc
         val field = detail
             .substringAfter("Key (")
             .substringBefore(")=")
+            .substringAfter("(")
+            .substringBefore("::")
             .snakeCaseToCamelCase()
         val value = detail
             .substringAfter("=(")

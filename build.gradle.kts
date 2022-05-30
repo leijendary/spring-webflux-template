@@ -2,7 +2,6 @@ val springVersion: String by project
 val starterAwsVersion: String by project
 val starterLoadBalancerVersion: String by project
 val starterSleuthVersion: String by project
-val starterZipkinVersion: String by project
 val starterStreamVersion: String by project
 val jacksonVersion: String by project
 val reactorKotlinVersion: String by project
@@ -18,6 +17,8 @@ val reactorTestVersion: String by project
 val blockhoundVersion: String by project
 val springCloudVersion: String by project
 val prometheusVersion: String by project
+val opentelemetryVersion: String by project
+val springCloudOtelVersion: String by project
 
 plugins {
     id("org.springframework.boot") version "2.6.7"
@@ -40,6 +41,8 @@ configurations {
 }
 
 repositories {
+    maven("https://repo.spring.io/snapshot")
+    maven("https://repo.spring.io/milestone")
     mavenCentral()
 }
 
@@ -55,12 +58,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:$springVersion")
+    implementation("org.springframework.boot:spring-boot-starter-security:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-validation:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-webflux:$springVersion")
     implementation("org.springframework.cloud:spring-cloud-starter-aws:$starterAwsVersion")
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:$starterLoadBalancerVersion")
-    implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$starterSleuthVersion")
-    implementation("org.springframework.cloud:spring-cloud-starter-zipkin:$starterZipkinVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$starterSleuthVersion") {
+        configurations {
+            all {
+                exclude("org.springframework.cloud", "spring-cloud-sleuth-brave")
+                exclude("io.zipkin.brave")
+            }
+        }
+    }
+    implementation("org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:$starterStreamVersion")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:$starterStreamVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
@@ -77,6 +88,8 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
     implementation("org.springdoc:springdoc-openapi-webflux-ui:$openapiVersion")
     implementation("io.r2dbc:r2dbc-postgresql:$r2dbcPostgresqlVersion")
+    implementation("io.opentelemetry:opentelemetry-extension-trace-propagators:$opentelemetryVersion")
+    implementation("io.opentelemetry:opentelemetry-exporter-jaeger:$opentelemetryVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus:$prometheusVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
@@ -92,6 +105,7 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+        mavenBom("org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:$springCloudOtelVersion")
     }
 }
 

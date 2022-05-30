@@ -21,7 +21,7 @@ val opentelemetryVersion: String by project
 val springCloudOtelVersion: String by project
 
 plugins {
-    id("org.springframework.boot") version "2.6.7"
+    id("org.springframework.boot") version "2.7.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.21"
     kotlin("jvm") version "1.6.21"

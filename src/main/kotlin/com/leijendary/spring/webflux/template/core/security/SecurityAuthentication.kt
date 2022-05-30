@@ -6,21 +6,28 @@ import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
-class SecurityAuthentication(request: ServerHttpRequest, private val anonymousUser: String) : Authentication {
+class SecurityAuthentication(request: ServerHttpRequest, anonymousUser: String) : Authentication {
     private val userId = request.headers.getFirst(HEADER_USER_ID)
-    private val scopes = request.headers.getFirst(HEADER_SCOPE)?.split(" ") ?: listOf()
+    private val authorities = request
+        .headers
+        .getFirst(HEADER_SCOPE)
+        ?.split(" ")
+        ?.map { GrantedAuthority { it } }
+        ?: listOf()
+    private val principal = userId ?: anonymousUser
+    private var isAuthenticated = userId != null
 
-    override fun getName(): String = userId ?: anonymousUser
+    override fun getName(): String = principal
 
-    override fun getAuthorities(): List<GrantedAuthority> = scopes.map { GrantedAuthority { it } }
+    override fun getAuthorities(): List<GrantedAuthority> = authorities
 
     override fun getCredentials(): Any? = userId
 
     override fun getDetails(): Any? = userId
 
-    override fun getPrincipal(): Any = userId ?: anonymousUser
+    override fun getPrincipal(): Any = principal
 
-    override fun isAuthenticated(): Boolean = userId != null
+    override fun isAuthenticated(): Boolean = this.isAuthenticated
 
     override fun setAuthenticated(isAuthenticated: Boolean) {
         this.isAuthenticated = isAuthenticated

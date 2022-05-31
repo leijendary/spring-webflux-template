@@ -16,7 +16,6 @@ class ErrorResponse(
         fun builder(request: ServerHttpRequest, span: Span): ErrorResponseBuilder {
             return ErrorResponseBuilder(request)
                 .status(INTERNAL_SERVER_ERROR)
-                .meta("requestId", request.id)
                 .selfLink()
                 .traceId(span)
         }

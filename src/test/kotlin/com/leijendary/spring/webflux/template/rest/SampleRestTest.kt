@@ -7,6 +7,7 @@ import com.leijendary.spring.webflux.template.api.v1.data.SampleTranslationReque
 import com.leijendary.spring.webflux.template.core.data.DataResponse
 import com.leijendary.spring.webflux.template.core.extension.scaled
 import com.leijendary.spring.webflux.template.core.extension.toClass
+import com.leijendary.spring.webflux.template.core.util.HEADER_SCOPE
 import com.leijendary.spring.webflux.template.core.util.HEADER_USER_ID
 import liquibase.repackaged.org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
@@ -34,6 +35,11 @@ class SampleRestTest(
     private val url = "/api/v1/samples"
     private val random = SecureRandom()
     private val userId = "junit-testing"
+    private val scopeList = "urn:sample:list:v1"
+    private val scopeCreate = "urn:sample:create:v1"
+    private val scopeGet = "urn:sample:get:v1"
+    private val scopeUpdate = "urn:sample:update:v1"
+    private val scopeDelete = "urn:sample:delete:v1"
     private val decimalFormat = DecimalFormat("0.0#")
     private val listSize = 21
     private val listLimit = 10
@@ -58,6 +64,7 @@ class SampleRestTest(
                 .uri(url)
                 .bodyValue(it)
                 .header(HEADER_USER_ID, this.userId)
+                .header(HEADER_SCOPE, this.scopeCreate)
                 .exchange()
                 .expectBody(DataResponse::class.java)
                 .returnResult()
@@ -77,6 +84,8 @@ class SampleRestTest(
             val bodyContentSpec = client
                 .get()
                 .uri(seekUri)
+                .header(HEADER_USER_ID, this.userId)
+                .header(HEADER_SCOPE, this.scopeList)
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
@@ -84,8 +93,8 @@ class SampleRestTest(
                 .jsonPath("$.data.length()").isEqualTo(listLimit)
                 .jsonPath("$.meta").isMap
                 .jsonPath("$.meta.length()").isEqualTo(listMetaSize)
+                .jsonPath("$.meta.traceId").isNotEmpty
                 .jsonPath("$.meta.timestamp").isNumber
-                .jsonPath("$.meta.requestId").isNotEmpty
                 .jsonPath("$.meta.seek").isMap
                 .jsonPath("$.meta.seek.length()").isEqualTo(metaSeekSize)
                 .jsonPath("$.meta.seek.size").isEqualTo(seekSize)
@@ -141,6 +150,7 @@ class SampleRestTest(
             .uri(url)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeCreate)
             .exchange()
             .expectStatus().isCreated
             .expectBody()
@@ -148,8 +158,8 @@ class SampleRestTest(
             .jsonPath("$.data.length()").isEqualTo(detailMemberSize)
             .jsonPath("$.meta").isMap
             .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
+            .jsonPath("$.meta.traceId").isNotEmpty
             .jsonPath("$.meta.timestamp").isNumber
-            .jsonPath("$.meta.requestId").isNotEmpty
             .jsonPath("$.meta.status").isEqualTo(CREATED.value())
             .jsonPath("$.links").isMap
             .jsonPath("$.links.length()").isEqualTo(detailLinksSize)
@@ -173,6 +183,7 @@ class SampleRestTest(
             .uri(url)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeCreate)
             .exchange()
             .expectBody()
             .returnResult()
@@ -184,6 +195,8 @@ class SampleRestTest(
         val bodyContentSpec = client
             .get()
             .uri(uri)
+            .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeGet)
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -191,8 +204,8 @@ class SampleRestTest(
             .jsonPath("$.data.length()").isEqualTo(detailMemberSize)
             .jsonPath("$.meta").isMap
             .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
+            .jsonPath("$.meta.traceId").isNotEmpty
             .jsonPath("$.meta.timestamp").isNumber
-            .jsonPath("$.meta.requestId").isNotEmpty
             .jsonPath("$.meta.status").isEqualTo(OK.value())
             .jsonPath("$.links").isMap
             .jsonPath("$.links.length()").isEqualTo(detailLinksSize)
@@ -216,6 +229,7 @@ class SampleRestTest(
             .uri(url)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeCreate)
             .exchange()
             .expectBody()
             .returnResult()
@@ -265,6 +279,7 @@ class SampleRestTest(
             .uri(uri)
             .bodyValue(updatedRequest)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeUpdate)
             .exchange()
             .expectStatus().isOk
             .expectBody()
@@ -272,8 +287,8 @@ class SampleRestTest(
             .jsonPath("$.data.length()").isEqualTo(detailMemberSize)
             .jsonPath("$.meta").isMap
             .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
+            .jsonPath("$.meta.traceId").isNotEmpty
             .jsonPath("$.meta.timestamp").isNumber
-            .jsonPath("$.meta.requestId").isNotEmpty
             .jsonPath("$.meta.status").isEqualTo(OK.value())
             .jsonPath("$.links").isMap
             .jsonPath("$.links.length()").isEqualTo(detailLinksSize)
@@ -297,6 +312,7 @@ class SampleRestTest(
             .uri(url)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeCreate)
             .exchange()
             .expectBody()
             .returnResult()
@@ -310,6 +326,7 @@ class SampleRestTest(
             .delete()
             .uri(uri)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeDelete)
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty
@@ -322,6 +339,8 @@ class SampleRestTest(
         client
             .get()
             .uri(uri)
+            .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeGet)
             .exchange()
             .expectStatus().isNotFound
             .expectBody()
@@ -336,8 +355,8 @@ class SampleRestTest(
             .jsonPath("$.errors[0].message").isEqualTo(message)
             .jsonPath("$.meta").isMap
             .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
+            .jsonPath("$.meta.traceId").isNotEmpty
             .jsonPath("$.meta.timestamp").isNumber
-            .jsonPath("$.meta.requestId").isNotEmpty
             .jsonPath("$.meta.status").isEqualTo(NOT_FOUND.value())
             .jsonPath("$.links").isMap
             .jsonPath("$.links.length()").isEqualTo(detailLinksSize)

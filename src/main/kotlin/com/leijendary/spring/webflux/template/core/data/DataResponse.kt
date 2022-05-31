@@ -22,7 +22,6 @@ class DataResponse<T>(
 
             return DataResponseBuilder<T>(request)
                 .status(OK)
-                .meta("requestId", request.id)
                 .selfLink()
                 .traceId()
         }

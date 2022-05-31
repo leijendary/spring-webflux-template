@@ -49,6 +49,12 @@ spring:
     jdbc:
       repositories:
         enabled: false
+    jpa:
+      repositories:
+        enabled: false
+    ldap:
+      repositories:
+        enabled: false
     redis:
       repositories:
         enabled: false

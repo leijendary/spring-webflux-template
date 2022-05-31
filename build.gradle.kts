@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
 val springVersion: String by project
 val starterAwsVersion: String by project
 val starterLoadBalancerVersion: String by project
@@ -22,6 +24,7 @@ val springCloudOtelVersion: String by project
 
 plugins {
     id("org.springframework.boot") version "2.7.0"
+    id("org.springframework.experimental.aot") version "0.12.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.21"
     kotlin("jvm") version "1.6.21"
@@ -41,9 +44,10 @@ configurations {
 }
 
 repositories {
+    mavenCentral()
     maven("https://repo.spring.io/snapshot")
     maven("https://repo.spring.io/milestone")
-    mavenCentral()
+    maven("https://repo.spring.io/release")
 }
 
 kapt {
@@ -109,11 +113,21 @@ dependencyManagement {
     }
 }
 
+tasks.getByName<BootBuildImage>("bootBuildImage") {
+    builder = "paketobuildpacks/builder:tiny"
+    environment = mapOf("BP_NATIVE_IMAGE" to "true")
+    buildpacks = listOf("gcr.io/paketo-buildpacks/java-native-image:7.19.0")
+}
+
 tasks.compileKotlin {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
         jvmTarget = "17"
     }
+}
+
+tasks.bootJar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.test {

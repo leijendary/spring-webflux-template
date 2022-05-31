@@ -162,6 +162,7 @@ spring:
     port:
   sleuth:
     messaging:
+      enabled: true
       kafka:
         streams:
           enabled: true

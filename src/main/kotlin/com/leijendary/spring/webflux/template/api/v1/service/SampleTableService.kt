@@ -114,6 +114,8 @@ class SampleTableService(
             .awaitSingle()
         val oldTranslations = getTranslations(id)
 
+        MAPPER.update(sampleRequest, sampleTable)
+
         transactionalOperator.executeAndAwait {
             sampleTable = sampleTableRepository.save(sampleTable)
             sampleTable.translations = sampleTableTranslationRepository

@@ -16,11 +16,12 @@ class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTe
 
     override fun save(referenceId: UUID, oldTranslations: List<T>, newTranslations: List<T>): Flow<T> {
         val isolation = LocaleEntity.isolate(oldTranslations, newTranslations)
+        val insert = insert(referenceId, isolation.creates)
+        val update = update(isolation.updates)
+        val delete = delete(isolation.deletes)
 
-        return merge(
-            insert(referenceId, isolation.creates),
-            update(isolation.updates)
-        ).onCompletion { delete(isolation.deletes) }
+        return merge(insert, update)
+            .onCompletion { delete.collect() }
     }
 
     private fun insert(referenceId: UUID, translations: List<T>): Flow<T> {

@@ -7,6 +7,7 @@ import com.leijendary.spring.webflux.template.api.v1.data.SampleTranslationReque
 import com.leijendary.spring.webflux.template.core.data.DataResponse
 import com.leijendary.spring.webflux.template.core.extension.scaled
 import com.leijendary.spring.webflux.template.core.extension.toClass
+import com.leijendary.spring.webflux.template.core.util.HEADER_SCOPE
 import com.leijendary.spring.webflux.template.core.util.HEADER_USER_ID
 import liquibase.repackaged.org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
@@ -36,6 +37,8 @@ class SampleSearchRestTest(
     private val url = "/api/v1/samples/search"
     private val random = SecureRandom()
     private val userId = "junit-testing"
+    private val scopeCreate = "urn:sample:create:v1"
+    private val scopeDelete = "urn:sample:delete:v1"
     private val decimalFormat = DecimalFormat("0.0#")
     private val languages = arrayOf("en", "jp")
     private val listTotal = 21
@@ -58,6 +61,7 @@ class SampleSearchRestTest(
                 .uri(sampleUrl)
                 .bodyValue(it)
                 .header(HEADER_USER_ID, this.userId)
+                .header(HEADER_SCOPE, this.scopeCreate)
                 .exchange()
                 .expectBody(DataResponse::class.java)
                 .returnResult()
@@ -93,8 +97,8 @@ class SampleSearchRestTest(
                     .jsonPath("$.data.length()").isEqualTo(listSize)
                     .jsonPath("$.meta").isMap
                     .jsonPath("$.meta.length()").isEqualTo(listMetaSize)
+                    .jsonPath("$.meta.traceId").isNotEmpty
                     .jsonPath("$.meta.timestamp").isNumber
-                    .jsonPath("$.meta.requestId").isNotEmpty
                     .jsonPath("$.meta.page").isMap
                     .jsonPath("$.meta.page.length()").isEqualTo(metaPageSize)
                     .jsonPath("$.meta.page.numberOfElements").isEqualTo(pageSize)
@@ -146,6 +150,7 @@ class SampleSearchRestTest(
             .uri(sampleUrl)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeCreate)
             .exchange()
             .expectBody()
             .returnResult()
@@ -169,8 +174,8 @@ class SampleSearchRestTest(
                 .jsonPath("$.data.length()").isEqualTo(detailMemberSize)
                 .jsonPath("$.meta").isMap
                 .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
+                .jsonPath("$.meta.traceId").isNotEmpty
                 .jsonPath("$.meta.timestamp").isNumber
-                .jsonPath("$.meta.requestId").isNotEmpty
                 .jsonPath("$.meta.status").isEqualTo(OK.value())
                 .jsonPath("$.links").isMap
                 .jsonPath("$.links.length()").isEqualTo(detailLinksSize)
@@ -189,6 +194,7 @@ class SampleSearchRestTest(
             .uri(sampleUrl)
             .bodyValue(request)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeCreate)
             .exchange()
             .expectBody()
             .returnResult()
@@ -204,6 +210,7 @@ class SampleSearchRestTest(
             .delete()
             .uri(sampleUri)
             .header(HEADER_USER_ID, this.userId)
+            .header(HEADER_SCOPE, this.scopeDelete)
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty
@@ -233,8 +240,8 @@ class SampleSearchRestTest(
             .jsonPath("$.errors[0].message").isEqualTo(message)
             .jsonPath("$.meta").isMap
             .jsonPath("$.meta.length()").isEqualTo(detailMetaSize)
+            .jsonPath("$.meta.traceId").isNotEmpty
             .jsonPath("$.meta.timestamp").isNumber
-            .jsonPath("$.meta.requestId").isNotEmpty
             .jsonPath("$.meta.status").isEqualTo(NOT_FOUND.value())
             .jsonPath("$.links").isMap
             .jsonPath("$.links.length()").isEqualTo(detailLinksSize)

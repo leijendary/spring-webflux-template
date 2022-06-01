@@ -88,6 +88,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
     implementation("org.springdoc:springdoc-openapi-webflux-ui:$openapiVersion")
     implementation("io.r2dbc:r2dbc-postgresql:$r2dbcPostgresqlVersion")
+    implementation("io.opentelemetry:opentelemetry-extension-kotlin:$opentelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators:$opentelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-exporter-jaeger:$opentelemetryVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")

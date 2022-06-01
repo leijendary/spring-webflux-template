@@ -73,6 +73,7 @@ class R2dbcConfiguration(
         val pool = properties.pool
         val configuration = ConnectionPoolConfiguration
             .builder(factory)
+            .initialSize(pool.initialSize)
             .maxSize(pool.maxSize)
             .build()
 

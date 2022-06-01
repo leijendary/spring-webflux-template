@@ -1,44 +1,60 @@
 package com.leijendary.spring.webflux.template.core.repository
 
 import com.leijendary.spring.webflux.template.core.entity.LocaleEntity
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Flux
-import reactor.kotlin.core.publisher.toFlux
+import reactor.core.scheduler.Schedulers.boundedElastic
 import java.util.*
 
 @Repository
 class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTemplate) : LocaleRepository<T> {
-    override fun save(referenceId: UUID, translations: List<T>): Flux<T> {
+    override fun save(referenceId: UUID, translations: List<T>): Flow<T> {
+        return insert(referenceId, translations)
+    }
+
+    override fun save(referenceId: UUID, oldTranslations: List<T>, newTranslations: List<T>): Flow<T> {
+        val isolation = LocaleEntity.isolate(oldTranslations, newTranslations)
+
+        return merge(
+            insert(referenceId, isolation.creates),
+            update(isolation.updates)
+        ).onCompletion { delete(isolation.deletes) }
+    }
+
+    private fun insert(referenceId: UUID, translations: List<T>): Flow<T> {
         return translations
-            .toFlux()
-            .flatMap {
+            .asFlow()
+            .map {
                 it.referenceId = referenceId
 
-                template.insert(it)
+                template
+                    .insert(it)
+                    .subscribeOn(boundedElastic())
+                    .awaitSingle()
             }
     }
 
-    override fun save(referenceId: UUID, oldTranslations: List<T>, newTranslations: List<T>): Flux<T> {
-        val isolation = LocaleEntity.isolate(oldTranslations, newTranslations)
-
-        return Flux
-            .merge(
-                save(referenceId, isolation.creates),
-                update(isolation.updates),
-            )
-            .doOnNext { delete(isolation.deletes) }
+    private fun update(translations: List<T>): Flow<T> {
+        return translations
+            .asFlow()
+            .map {
+                template
+                    .update(it)
+                    .subscribeOn(boundedElastic())
+                    .awaitSingle()
+            }
     }
 
-    private fun update(translations: List<T>): Flux<T> {
+    private fun delete(translations: List<T>): Flow<T> {
         return translations
-            .toFlux()
-            .flatMap { template.update(it) }
-    }
-
-    private fun delete(translations: List<T>): Flux<T> {
-        return translations
-            .toFlux()
-            .flatMap { template.delete(it) }
+            .asFlow()
+            .map {
+                template
+                    .delete(it)
+                    .subscribeOn(boundedElastic())
+                    .awaitSingle()
+            }
     }
 }

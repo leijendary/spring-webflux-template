@@ -98,6 +98,8 @@ spring:
             google:
               - uri: https://www.google.com
     loadbalancer:
+      cache:
+        enabled: false
       retry:
         maxRetriesOnSameServiceInstance: 3
         retryOnAllOperations: true

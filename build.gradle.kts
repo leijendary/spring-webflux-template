@@ -11,7 +11,6 @@ val kotlinxVersion: String by project
 val liquibaseVersion: String by project
 val mapstructVersion: String by project
 val springJdbcVersion: String by project
-val caffeineVersion: String by project
 val openapiVersion: String by project
 val r2dbcPostgresqlVersion: String by project
 val postgresqlVersion: String by project
@@ -58,7 +57,6 @@ kapt {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator:$springVersion")
-    implementation("org.springframework.boot:spring-boot-starter-aop:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:$springVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:$springVersion")
@@ -79,17 +77,14 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:$starterStreamVersion")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:$starterStreamVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorKotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinxVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinxVersion")
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
     implementation("org.springframework:spring-jdbc:$springJdbcVersion")
-    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
     implementation("org.springdoc:springdoc-openapi-webflux-ui:$openapiVersion")
     implementation("io.r2dbc:r2dbc-postgresql:$r2dbcPostgresqlVersion")
     implementation("io.opentelemetry:opentelemetry-extension-kotlin:$opentelemetryVersion")

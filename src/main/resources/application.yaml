@@ -65,6 +65,7 @@ spring:
       username:
       password:
       pool:
+        initialSize: 10
         maxSize: 20
     readonly:
       name:
@@ -72,6 +73,7 @@ spring:
       username:
       password:
       pool:
+        initialSize: 10
         maxSize: 10
     batch:
       size: 1000

@@ -1,11 +1,12 @@
 package com.leijendary.spring.webflux.template.core.repository
 
 import com.leijendary.spring.webflux.template.core.entity.SoftDeleteEntity
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.auditing.DateTimeProvider
 import org.springframework.data.domain.ReactiveAuditorAware
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers.boundedElastic
 import java.time.LocalDateTime
 
 @Repository
@@ -14,14 +15,18 @@ class SoftDeleteRepositoryImpl<T : SoftDeleteEntity>(
     private val dateTimeProvider: DateTimeProvider,
     private val template: R2dbcEntityTemplate
 ) : SoftDeleteRepository<T> {
-    override fun softDelete(entity: T): Mono<T> {
-        return auditorAware
+    override suspend fun softDelete(entity: T): T {
+        val auditor = auditorAware
             .currentAuditor
-            .flatMap {
-                entity.deletedBy = it
-                entity.deletedAt = dateTimeProvider.now.get() as LocalDateTime
+            .subscribeOn(boundedElastic())
+            .awaitSingle()
 
-                template.update(entity)
-            }
+        entity.deletedBy = auditor
+        entity.deletedAt = dateTimeProvider.now.get() as LocalDateTime
+
+        return template
+            .update(entity)
+            .subscribeOn(boundedElastic())
+            .awaitSingle()
     }
 }

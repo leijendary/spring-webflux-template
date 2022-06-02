@@ -2,14 +2,13 @@ package com.leijendary.spring.webflux.template.repository
 
 import com.leijendary.spring.webflux.template.core.repository.SoftDeleteRepository
 import com.leijendary.spring.webflux.template.entity.SampleTable
+import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.time.LocalDateTime
 import java.util.*
 
-interface SampleTableRepository : ReactiveCrudRepository<SampleTable, UUID>, SoftDeleteRepository<SampleTable> {
+interface SampleTableRepository : CoroutineCrudRepository<SampleTable, UUID>, SoftDeleteRepository<SampleTable> {
     @Query(
         """
             select 
@@ -41,7 +40,7 @@ interface SampleTableRepository : ReactiveCrudRepository<SampleTable, UUID>, Sof
               limit :limit + 1
         """
     )
-    fun query(query: String? = "", limit: Int): Flux<SampleTable>
+    fun query(query: String? = "", limit: Int): Flow<SampleTable>
 
     @Query(
         """
@@ -75,7 +74,7 @@ interface SampleTableRepository : ReactiveCrudRepository<SampleTable, UUID>, Sof
               limit :limit + 1
         """
     )
-    fun seek(query: String? = "", createdAt: LocalDateTime, rowId: Long, limit: Int): Flux<SampleTable>
+    fun seek(query: String? = "", createdAt: LocalDateTime, rowId: Long, limit: Int): Flow<SampleTable>
 
     @Query(
         """
@@ -95,7 +94,7 @@ interface SampleTableRepository : ReactiveCrudRepository<SampleTable, UUID>, Sof
               and deleted_at is null
         """
     )
-    fun get(id: UUID): Mono<SampleTable>
+    suspend fun get(id: UUID): SampleTable
 
-    fun findAllByDeletedAtIsNull(): Flux<SampleTable>
+    fun findAllByDeletedAtIsNull(): Flow<SampleTable>
 }

@@ -15,12 +15,11 @@ import java.util.*
 
 const val HEADER_USER_ID = "X-User-ID"
 const val HEADER_SCOPE = "X-Scope"
-val EXCHANGE_CONTEXT_KEY: String = ServerWebExchange::class.java.name
 
 object RequestContext {
     suspend fun exchange(): ServerWebExchange? = Mono
         .deferContextual {
-            it.getOrEmpty<ServerWebExchange>(EXCHANGE_CONTEXT_KEY)
+            it.getOrEmpty<ServerWebExchange>(ServerWebExchange::class.java)
                 .orElse(null)
                 .toMono()
         }

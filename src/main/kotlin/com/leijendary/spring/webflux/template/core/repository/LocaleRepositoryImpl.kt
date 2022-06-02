@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers.boundedElastic
 import java.util.*
 
@@ -25,35 +26,27 @@ class LocaleRepositoryImpl<T : LocaleEntity>(private val template: R2dbcEntityTe
     }
 
     private fun insert(referenceId: UUID, translations: List<T>): Flow<T> {
-        return translations
-            .asFlow()
-            .map {
-                it.referenceId = referenceId
+        return execute(translations) {
+            it.referenceId = referenceId
 
-                template
-                    .insert(it)
-                    .subscribeOn(boundedElastic())
-                    .awaitSingle()
-            }
+            template.insert(it)
+        }
     }
 
     private fun update(translations: List<T>): Flow<T> {
-        return translations
-            .asFlow()
-            .map {
-                template
-                    .update(it)
-                    .subscribeOn(boundedElastic())
-                    .awaitSingle()
-            }
+        return execute(translations) { template.update(it) }
     }
 
     private fun delete(translations: List<T>): Flow<T> {
+        return execute(translations) { template.delete(it) }
+    }
+
+    private fun execute(translations: List<T>, publisher: (value: T) -> Mono<T>): Flow<T> {
         return translations
             .asFlow()
             .map {
-                template
-                    .delete(it)
+                publisher
+                    .invoke(it)
                     .subscribeOn(boundedElastic())
                     .awaitSingle()
             }

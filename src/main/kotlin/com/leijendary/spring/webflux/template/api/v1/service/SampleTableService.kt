@@ -97,7 +97,7 @@ class SampleTableService(
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .subscribeOn(boundedElastic())
             .awaitSingle()
-        sampleTable.translations = getTranslations(sampleTable.id)
+            .apply { translations = getTranslations(this.id) }
 
         val response = MAPPER.toResponse(sampleTable)
 
@@ -136,7 +136,7 @@ class SampleTableService(
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .subscribeOn(boundedElastic())
             .awaitSingle()
-        sampleTable.translations = getTranslations(sampleTable.id)
+            .apply { translations = getTranslations(this.id) }
 
         sampleTableRepository.softDelete(sampleTable)
 

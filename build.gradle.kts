@@ -111,8 +111,21 @@ dependencyManagement {
 
 tasks.getByName<BootBuildImage>("bootBuildImage") {
     builder = "paketobuildpacks/builder:tiny"
-    environment = mapOf("BP_NATIVE_IMAGE" to "true")
+    environment = mapOf(
+        "BP_NATIVE_IMAGE" to "true",
+        "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "--initialize-at-build-time=org.apache.kafka.common.message --enable-https -H:DynamicProxyConfigurationFiles=../../../dynamic-proxies.json"
+    )
     buildpacks = listOf("gcr.io/paketo-buildpacks/java-native-image:7.19.0")
+}
+
+tasks.nativeCompile {
+    options
+        .get()
+        .buildArgs(
+            "--initialize-at-build-time=org.apache.kafka.common.message",
+            "--enable-https",
+            "-H:DynamicProxyConfigurationFiles=../../../dynamic-proxies.json"
+        )
 }
 
 tasks.compileKotlin {
@@ -123,6 +136,10 @@ tasks.compileKotlin {
 }
 
 tasks.bootJar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 

@@ -1,4 +1,4 @@
-import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+import org.gradle.api.file.DuplicatesStrategy.INCLUDE
 
 val springVersion: String by project
 val starterAwsVersion: String by project
@@ -110,12 +110,6 @@ dependencyManagement {
     }
 }
 
-tasks.getByName<BootBuildImage>("bootBuildImage") {
-    builder = "paketobuildpacks/builder:tiny"
-    environment = mapOf("BP_NATIVE_IMAGE" to "true")
-    buildpacks = listOf("gcr.io/paketo-buildpacks/java-native-image:7.19.0")
-}
-
 tasks.compileKotlin {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
@@ -124,7 +118,11 @@ tasks.compileKotlin {
 }
 
 tasks.bootJar {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = INCLUDE
+}
+
+tasks.jar {
+    duplicatesStrategy = INCLUDE
 }
 
 tasks.test {

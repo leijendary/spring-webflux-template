@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: LOGS
-        run: echo ${{ secerts.AWS_REGION }} ${{ secrets.AWS_ACCESS_KEY_ID }}
+        run: echo ${{ secrets.AWS_REGION }} ${{ secrets.AWS_ACCESS_KEY_ID }}
       - name: Checkout
         uses: actions/checkout@v3
       - name: Configure AWS credentials

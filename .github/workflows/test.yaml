@@ -24,7 +24,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-      - name: Execute Gradle Test
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: test
+#      - name: Execute Gradle Test
+#        uses: gradle/gradle-build-action@v2
+#        with:
+#          arguments: test --args='--spring.profiles.active=cicd'

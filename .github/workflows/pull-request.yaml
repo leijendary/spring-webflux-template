@@ -10,4 +10,6 @@ jobs:
     name: Run JUnit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/test.yaml
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: .github/workflows/test.yaml

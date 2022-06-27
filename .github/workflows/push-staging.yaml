@@ -14,7 +14,5 @@ jobs:
   deploy:
     name: Deploy to Fargate
     uses: ./.github/workflows/deploy-fargate.yaml
-    with:
-      environment: staging
     secrets: inherit
     needs: build

@@ -8,4 +8,4 @@ on:
 jobs:
   test:
     name: Run JUnit
-    uses: ./.github/workflows/actions/test.yaml
+    uses: ./.github/workflows/test.yaml

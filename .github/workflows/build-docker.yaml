@@ -1,8 +1,18 @@
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_REGION:
+        required: true
+
 env:
   REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}
-  IMAGE_TAG: $GITHUB_SHA
-
-on: workflow_call
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   build:

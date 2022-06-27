@@ -7,7 +7,7 @@ env:
 on:
   workflow_run:
     workflows:
-      - test
+      - Run JUnit Tests
     types:
       - completed
     branches:

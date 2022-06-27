@@ -5,6 +5,16 @@ env:
   IMAGE_TAG: ${GITHUB_SHA::7}
 
 on:
+  workflow_run:
+    workflows:
+      - test
+    types:
+      - completed
+    branches:
+      - develop
+      - release/**
+      - staging
+      - master
   push:
     branches:
       - develop
@@ -16,7 +26,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -40,4 +51,3 @@ jobs:
       - name: Log out of AWS ECR
         if: always()
         run: docker logout ${{ steps.login-aws-ecr.outputs.registry }}
-    needs: test

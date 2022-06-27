@@ -1,0 +1,13 @@
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  test:
+    name: Run JUnit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./github/workflows/test.yaml

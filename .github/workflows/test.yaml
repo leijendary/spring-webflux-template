@@ -1,15 +1,4 @@
-on:
-  push:
-    branches:
-      - develop
-      - release/**
-      - staging
-      - master
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
+on: workflow_call
 
 jobs:
   test:

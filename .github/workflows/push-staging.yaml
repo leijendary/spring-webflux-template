@@ -13,6 +13,8 @@ jobs:
     needs: test
   deploy:
     name: Deploy to Fargate
-    uses: ./.github/workflows/deploy-fargate.yaml
+    runs-on: ubuntu-latest
     environment: staging
+    steps:
+      - uses: ./.github/workflows/deploy-fargate.yaml
     needs: build

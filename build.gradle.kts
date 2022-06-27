@@ -86,6 +86,7 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-extension-kotlin:$opentelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators:$opentelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-exporter-jaeger:$opentelemetryVersion")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp-common:$opentelemetryVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus:$prometheusVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")

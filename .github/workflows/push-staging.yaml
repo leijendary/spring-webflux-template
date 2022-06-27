@@ -1,0 +1,17 @@
+
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  test:
+    name: Run JUnit
+    uses: ./.github/actions/test.yaml
+  build:
+    name: Build Docker Image
+    uses: ./.github/actions/build-docker.yaml
+  deploy:
+    name: Deploy to Fargate
+    uses: ./.github/actions/deploy-fargate.yaml

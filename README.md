@@ -37,6 +37,7 @@
 - BlockHound
 - OpenAPI
 - Prometheus
+- OpenTelemetry
 
 # Spring Microservice WebFlux
 

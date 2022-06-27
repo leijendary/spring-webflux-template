@@ -73,7 +73,7 @@ spring:
       username:
       password:
       pool:
-        initialSize: 10
+        initialSize: 5
         maxSize: 10
     batch:
       size: 1000
@@ -98,6 +98,8 @@ spring:
             google:
               - uri: https://www.google.com
     loadbalancer:
+      cache:
+        enabled: false
       retry:
         maxRetriesOnSameServiceInstance: 3
         retryOnAllOperations: true

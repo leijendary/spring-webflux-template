@@ -15,12 +15,6 @@ on:
       - release/**
       - staging
       - master
-  push:
-    branches:
-      - develop
-      - release/**
-      - staging
-      - master
 
 jobs:
   build:

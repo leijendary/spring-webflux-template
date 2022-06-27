@@ -30,6 +30,9 @@ jobs:
         run: docker tag $REPOSITORY_URL:$IMAGE_TAG $REPOSITORY_URL:latest
       - name: Push Image
         run: docker push --all-tags $REPOSITORY_URL
+      - id: build-tag
+        name: Image Name Output
+        run: echo "::set-output name=image::$REPOSITORY_URL:$IMAGE_TAG"
       - name: Log out of AWS ECR
         if: always()
         run: docker logout ${{ steps.login-aws-ecr.outputs.registry }}

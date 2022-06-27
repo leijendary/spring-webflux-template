@@ -7,5 +7,4 @@ on:
 
 jobs:
   test:
-    name: Run JUnit Tests
     uses: ./.github/workflows/test.yaml

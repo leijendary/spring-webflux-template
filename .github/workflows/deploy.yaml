@@ -1,5 +1,3 @@
-name: Deploy to ECS Fargate
-
 env:
   IMAGE_TAG: $GITHUB_SHA
 
@@ -12,4 +10,5 @@ on:
 
 jobs:
   deploy:
-    
+    name: Deploy to ECS Fargate
+    runs-on: ubuntu-latest

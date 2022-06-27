@@ -1,5 +1,3 @@
-name: Build Docker Image
-
 env:
   REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}
   IMAGE_TAG: $GITHUB_SHA
@@ -21,6 +19,7 @@ on:
 
 jobs:
   build:
+    name: Build Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-jammy as build
+FROM eclipse-temurin:17-jdk-jammy as build
 WORKDIR /workspace/app
 COPY src src
 COPY gradle gradle

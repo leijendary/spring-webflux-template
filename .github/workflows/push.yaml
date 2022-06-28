@@ -1,0 +1,49 @@
+on:
+  push:
+    branches:
+      - develop
+      - release/**
+      - staging
+      - master
+
+jobs:
+  test:
+    name: JUnit
+    uses: ./.github/workflows/test.yaml
+  build:
+    name: Docker Image
+    uses: ./.github/workflows/build.yaml
+    secrets: inherit
+    needs: test
+  deploy-develop:
+    name: Fargate
+    if: github.ref == 'refs/heads/develop'
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: development
+    secrets: inherit
+    needs: build
+  deploy-release:
+    name: Fargate
+    if: startsWith(github.ref, == 'refs/heads/release/')
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: test
+    secrets: inherit
+    needs: build
+  deploy-staging:
+    name: Fargate
+    if: github.ref == 'refs/heads/staging'
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: staging
+    secrets: inherit
+    needs: build
+  deploy-production:
+    name: Fargate
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: production
+    secrets: inherit
+    needs: build

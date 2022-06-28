@@ -4,10 +4,14 @@ on:
       environment:
         required: true
         type: string
+      image-tag:
+        required: false
+        type: string
+        default: ${{ github.sha }}
 
 env:
   REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}
-  IMAGE_TAG: ${{ github.sha }}
+  IMAGE_TAG: ${{ inputs.image-tag }}
 
 jobs:
   deploy:
@@ -23,7 +27,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Login to Amazon ECR
-        id: login-aws-ecr
         uses: aws-actions/amazon-ecr-login@v1
       - name: Update Task Definition
         id: task-definition

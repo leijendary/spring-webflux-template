@@ -23,8 +23,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       - name: Pull Latest Image
         run: docker pull $REPOSITORY_URL:latest || true
-      - id: build-image
-        name: Build New Image
+      - name: Build New Image
         env:
           DOCKER_BUILDKIT: 1
         run: |

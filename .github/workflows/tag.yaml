@@ -26,9 +26,9 @@ jobs:
       - name: Pull Image
         run: docker pull $REPOSITORY_URL:$GITHUB_SHA
       - name: Build New Image
-        run: docker tag $REPOSITORY_URL:$GITHUB_SHA $REPOSITORY_URL:$GITHUB_REF
+        run: docker tag $REPOSITORY_URL:$GITHUB_SHA $REPOSITORY_URL:$GITHUB_REF_NAME
       - name: Push Image
-        run: docker push $REPOSITORY_URL:$GITHUB_REF
+        run: docker push $REPOSITORY_URL:$GITHUB_REF_NAME
       - name: Log out of AWS ECR
         if: always()
         run: docker logout ${{ steps.login-aws-ecr.outputs.registry }}

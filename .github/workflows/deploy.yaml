@@ -3,6 +3,10 @@ env:
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -16,7 +20,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3

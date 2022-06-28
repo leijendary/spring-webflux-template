@@ -1,10 +1,7 @@
 on:
   push:
     branches:
-      - develop
-      - release/**
       - staging
-      - master
 
 jobs:
   test:
@@ -18,5 +15,7 @@ jobs:
   deploy:
     name: Deploy to Fargate
     uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: staging
     secrets: inherit
     needs: build

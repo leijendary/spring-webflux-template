@@ -16,7 +16,7 @@ jobs:
     secrets: inherit
     needs: test
   deploy-develop:
-    name: Fargate
+    name: Fargate Development
     if: github.ref == 'refs/heads/develop'
     uses: ./.github/workflows/deploy.yaml
     with:
@@ -24,15 +24,15 @@ jobs:
     secrets: inherit
     needs: build
   deploy-release:
-    name: Fargate
-    if: startsWith(github.ref, == 'refs/heads/release/')
+    name: Fargate Test
+    if: startsWith(github.ref, 'refs/heads/release/')
     uses: ./.github/workflows/deploy.yaml
     with:
       environment: test
     secrets: inherit
     needs: build
   deploy-staging:
-    name: Fargate
+    name: Fargate Staging
     if: github.ref == 'refs/heads/staging'
     uses: ./.github/workflows/deploy.yaml
     with:
@@ -40,7 +40,7 @@ jobs:
     secrets: inherit
     needs: build
   deploy-production:
-    name: Fargate
+    name: Fargate Production
     if: github.ref == 'refs/heads/master'
     uses: ./.github/workflows/deploy.yaml
     with:

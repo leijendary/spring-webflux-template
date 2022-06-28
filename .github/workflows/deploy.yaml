@@ -8,17 +8,6 @@ on:
       environment:
         required: true
         type: string
-    secrets:
-      AWS_ACCOUNT_ID:
-        required: true
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
-      AWS_REGION:
-        required: true
-      CONTAINER_NAME:
-        required: true
 
 jobs:
   deploy:
@@ -40,7 +29,7 @@ jobs:
         id: task-definition
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
+          task-definition: ./.aws/task-definitions/${{ inputs.environment }}
           container-name: ${{ secrets.CONTAINER_NAME }}
           image: $REPOSITORY_URL/$IMAGE_TAG
       - name: Deploy Amazon ECS task definition

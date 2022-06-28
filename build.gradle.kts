@@ -1,3 +1,5 @@
+import org.gradle.api.file.DuplicatesStrategy.INCLUDE
+
 val springVersion: String by project
 val starterAwsVersion: String by project
 val starterLoadBalancerVersion: String by project
@@ -111,6 +113,14 @@ tasks.compileKotlin {
         freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
         jvmTarget = "17"
     }
+}
+
+tasks.bootJar {
+    duplicatesStrategy = INCLUDE
+}
+
+tasks.jar {
+    enabled = false
 }
 
 tasks.test {

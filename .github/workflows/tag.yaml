@@ -37,6 +37,6 @@ jobs:
     uses: ./.github/workflows/deploy.yaml
     with:
       environment: production
-      image-tag: ${{ github.ref }}
+      image-tag: $GITHUB_REF_NAME
     secrets: inherit
     needs: docker

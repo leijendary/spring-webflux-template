@@ -1,13 +1,13 @@
-env:
-  REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}
-  IMAGE_TAG: ${{ github.sha }}
-
 on:
   workflow_call:
     inputs:
       environment:
         required: true
         type: string
+
+env:
+  REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   deploy:

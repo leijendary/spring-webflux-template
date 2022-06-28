@@ -9,8 +9,6 @@ on:
         required: true
       AWS_REGION:
         required: true
-      ECS_TASK_DEFINITION:
-        required: true
 
 env:
   REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}

@@ -5,15 +5,15 @@ on:
 
 jobs:
   test:
-    name: Run JUnit
+    name: JUnit
     uses: ./.github/workflows/test.yaml
   build:
-    name: Build Docker Image
+    name: Docker Image
     uses: ./.github/workflows/build.yaml
     secrets: inherit
     needs: test
   deploy:
-    name: Deploy to Fargate
+    name: Fargate
     uses: ./.github/workflows/deploy.yaml
     with:
       environment: staging

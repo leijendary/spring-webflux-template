@@ -1,7 +1,10 @@
 on:
   push:
     branches:
+      - develop
+      - release/**
       - staging
+      - master
 
 jobs:
   test:
@@ -9,13 +12,11 @@ jobs:
     uses: ./.github/workflows/test.yaml
   build:
     name: Build Docker Image
-    uses: ./.github/workflows/build-docker.yaml
-    with:
-      environment: staging
+    uses: ./.github/workflows/build.yaml
     secrets: inherit
     needs: test
   deploy:
     name: Deploy to Fargate
-    uses: ./.github/workflows/deploy-fargate.yaml
+    uses: ./.github/workflows/deploy.yaml
     secrets: inherit
     needs: build

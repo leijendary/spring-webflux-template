@@ -3,6 +3,9 @@ on:
     tags:
       - '*'
 
+env:
+  REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}
+
 jobs:
   docker:
     name: Tag Image

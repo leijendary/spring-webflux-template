@@ -21,6 +21,17 @@ auth:
   system:
     principal: System
 
+cloud:
+  aws:
+    credentials:
+      instanceProfile: false
+      useDefaultAwsCredentialsChain: false
+    stack:
+      auto: false
+    region:
+      auto: false
+      useDefaultAwsRegionChain: false
+
 emission:
   deadline: 5m
 

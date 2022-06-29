@@ -17,6 +17,9 @@ jobs:
           arguments: test --info
         env:
           SPRING_PROFILES_ACTIVE: cicd
+          CLOUD_AWS_CREDENTIALS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          CLOUD_AWS_CREDENTIALS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CLOUD_AWS_REGION_STATIC: ${{ secrets.AWS_REGION }}
     services:
       postgres:
         image: postgres:14-alpine

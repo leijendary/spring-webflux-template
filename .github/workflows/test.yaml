@@ -1,7 +1,10 @@
-on: workflow_call
+on:
+  workflow_call:
+  push:
 
 jobs:
   test:
+    name: JUnit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

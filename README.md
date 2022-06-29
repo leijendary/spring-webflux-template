@@ -51,7 +51,7 @@
 
 ### To build a JAR file:
 
-`./gradlew bootJar -x test`
+`./gradlew build -x test`
 
 ### To generate a certificate:
 

@@ -6,22 +6,22 @@ spring:
   r2dbc:
     primary:
       name: spring_microservice
-      url: r2dbc:postgresql://postgres:5432
+      url: r2dbc:postgresql://localhost:5432
       username: postgres
       password: 12345678
     readonly:
       name: spring_microservice
-      url: r2dbc:postgresql://postgres:5432
+      url: r2dbc:postgresql://localhost:5432
       username: postgres
       password: 12345678
   liquibase:
-    url: jdbc:postgresql://postgres:5432/spring_microservice
+    url: jdbc:postgresql://localhost:5432/spring_microservice
     user: postgres
     password: 12345678
   elasticsearch:
-    uris: http://elasticsearch:9200
+    uris: http://localhost:9200
   kafka:
-    bootstrapServers: kafka:19092
+    bootstrapServers: localhost:9092
   redis:
     host: redis
     port: 6379
@@ -29,4 +29,4 @@ spring:
     otel:
       exporter:
         jaeger:
-          endpoint: http://jaeger:14250
+          endpoint: http://localhost:14250

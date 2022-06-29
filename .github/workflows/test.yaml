@@ -1,15 +1,7 @@
-on:
-  workflow_call:
-  push:
-    branches-ignore:
-      - develop
-      - release/**
-      - staging
-      - master
+on: workflow_call
 
 jobs:
   test:
-    name: JUnit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

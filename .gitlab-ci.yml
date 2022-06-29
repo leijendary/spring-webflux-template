@@ -72,7 +72,7 @@ Test Merge Request:
     key: merge_requests
   script:
     - echo "Running tests..."
-    - gradle test --args='--spring.profiles.active=cicd'
+    - gradle test -D spring.profiles.active=cicd --info
     - echo "Tests completed."
   tags:
     - MediumRunner
@@ -85,7 +85,7 @@ Test:
   image: gradle:7-jdk17
   script:
     - echo "Running tests..."
-    - gradle test --args='--spring.profiles.active=cicd'
+    - gradle test -D spring.profiles.active=cicd --info
     - echo "Tests completed."
   tags:
     - MediumRunner

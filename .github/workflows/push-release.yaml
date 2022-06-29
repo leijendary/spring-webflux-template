@@ -7,6 +7,7 @@ jobs:
   test:
     name: JUnit
     uses: ./.github/workflows/test.yaml
+    secrets: inherit
   build:
     name: Docker Image
     uses: ./.github/workflows/build.yaml

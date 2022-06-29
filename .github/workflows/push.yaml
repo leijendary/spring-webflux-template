@@ -9,3 +9,4 @@ jobs:
   test:
     name: JUnit
     uses: ./.github/workflows/test.yaml
+    secrets: inherit

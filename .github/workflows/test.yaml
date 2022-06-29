@@ -15,3 +15,44 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test --args='--spring.profiles.active=cicd'
+    services:
+      postgres:
+        image: postgres:14-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: 12345678
+          POSTGRES_DB: spring_microservice
+      redis:
+        image: redis:6-alpine
+        ports:
+          - 6379:6379
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+        ports:
+          - 9200:9200
+          - 9300:9300
+        env:
+          discovery.type: single-node
+          bootstrap.memory_lock: true
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+      kafka:
+        image: jleijendekker/kafka:1.0.0
+        ports:
+          - 9092:9092
+          - 9093:9093
+          - 19092:19092
+      jaeger:
+        image: jaegertracing/all-in-one:1
+        ports:
+          - 5775:5775/udp
+          - 6831:6831/udp
+          - 6832:6832/udp
+          - 5778:5778
+          - 16686:16686
+          - 14250:14250
+          - 14268:14268
+          - 14269:14269
+          - 9411:9411
+        env:
+          COLLECTOR_ZIPKIN_HOST_PORT: :9411

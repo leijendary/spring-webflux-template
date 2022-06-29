@@ -1,3 +1,4 @@
+import org.gradle.api.file.DuplicatesStrategy.INCLUDE
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 val springVersion: String by project
@@ -52,6 +53,7 @@ repositories {
 kapt {
     arguments {
         arg("mapstruct.defaultComponentModel", "spring")
+        arg("mapstruct.unmappedTargetPolicy", "IGNORE")
     }
 }
 
@@ -90,6 +92,7 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-extension-kotlin:$opentelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-extension-trace-propagators:$opentelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-exporter-jaeger:$opentelemetryVersion")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp-common:$opentelemetryVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus:$prometheusVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
@@ -136,11 +139,11 @@ tasks.compileKotlin {
 }
 
 tasks.bootJar {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = INCLUDE
 }
 
 tasks.jar {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = INCLUDE
 }
 
 tasks.test {

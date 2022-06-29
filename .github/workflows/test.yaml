@@ -17,7 +17,7 @@ jobs:
       - name: Execute Gradle Test
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test -D spring.profiles.active=cicd --info
+          arguments: test -Dspring.profiles.active=cicd --info
     services:
       postgres:
         image: postgres:14-alpine

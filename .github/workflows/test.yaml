@@ -1,6 +1,11 @@
 on:
   workflow_call:
   push:
+    branches-ignore:
+      - develop
+      - release/**
+      - staging
+      - master
 
 jobs:
   test:

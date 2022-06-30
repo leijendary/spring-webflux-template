@@ -96,11 +96,11 @@ Test:
     - master
 
 # Build the Docker Build for DEV using the JAR file created from the build stage
-Build for Development:
+Build for Dev:
   stage: build
   extends: .docker_build
   environment:
-    name: development
+    name: dev
   only:
     - develop
 
@@ -146,13 +146,13 @@ Tag:
   only:
     - tags
 
-# Deploy the image into the Development cluster
-Deploy to Development:
+# Deploy the image into the Dev cluster
+Deploy to Dev:
   stage: deploy
   extends: .deploy
   environment:
     # We want to isolate AWS_CLUSTER_NAME and AWS_SERVICE_NAME per environment
-    name: development
+    name: dev
   only:
     - develop
 

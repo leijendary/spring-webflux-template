@@ -28,7 +28,7 @@ cache: &global_cache
   extends: .configuration
   script:
     - echo "Updating ECS service..."
-    - aws ecs update-service --force-new-deployment --region "${AWS_DEFAULT_REGION}" --cluster "${AWS_CLUSTER_NAME}" --service "${AWS_SERVICE_NAME}"
+    - aws ecs update-service --force-new-deployment --region "${AWS_DEFAULT_REGION}" --cluster "${AWS_CLUSTER_NAME}-${$CI_ENVIRONMENT_NAME}" --service "${AWS_SERVICE_NAME}"
     - echo "Updated ECS service."
   tags:
     - MicroRunner
@@ -109,7 +109,7 @@ Build for Testing:
   stage: build
   extends: .docker_build
   environment:
-    name: testing
+    name: test
   only:
     - /^release/.*$/i
 
@@ -162,7 +162,7 @@ Deploy to Testing:
   extends: .deploy
   environment:
     # We want to isolate AWS_CLUSTER_NAME and AWS_SERVICE_NAME per environment
-    name: testing
+    name: test
   only:
     - /^release/.*$/i
 

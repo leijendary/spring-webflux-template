@@ -27,6 +27,7 @@ plugins {
     id("org.springframework.experimental.aot") version "0.12.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.21"
+    id("org.barfuin.gradle.jacocolog") version "2.0.0"
     kotlin("jvm") version "1.6.21"
     kotlin("kapt") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
@@ -149,6 +150,11 @@ tasks.jar {
 tasks.test {
     jvmArgs = listOf("-XX:+AllowRedefinitionToAddDeleteMethods")
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }
 
 tasks.processResources {

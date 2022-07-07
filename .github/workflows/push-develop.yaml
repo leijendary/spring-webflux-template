@@ -17,6 +17,6 @@ jobs:
     name: Fargate
     uses: ./.github/workflows/deploy.yaml
     with:
-      environment: development
+      environment: dev
     secrets: inherit
     needs: build

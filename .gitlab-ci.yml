@@ -93,7 +93,7 @@ Test:
     - develop
     - /^release/.*$/i
     - staging
-    - master
+    - main
 
 # Build the Docker Build for DEV using the JAR file created from the build stage
 Build for Dev:
@@ -129,7 +129,7 @@ Build for Production:
   environment:
     name: production
   only:
-    - master
+    - main
 
 # Tag the docker image based on the pushed repository tag
 Tag:
@@ -184,4 +184,4 @@ Deploy to Production:
     # We want to isolate AWS_CLUSTER_NAME and AWS_SERVICE_NAME per environment
     name: production
   only:
-    - master
+    - main

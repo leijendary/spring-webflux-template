@@ -28,19 +28,6 @@ class R2dbcConfiguration(
     private val readonlyProperties: R2dbcReadonlyProperties
 ) : AbstractR2dbcConfiguration() {
     @Bean
-    override fun connectionFactory(): ConnectionFactory {
-        val connectionFactories = mutableMapOf(
-            READ_WRITE to primaryConnectionFactory(),
-            READ_ONLY to readOnlyConnectionFactory()
-        )
-        val clusterConnectionFactory = ClusterConnectionFactory()
-        clusterConnectionFactory.setTargetConnectionFactories(connectionFactories)
-        clusterConnectionFactory.setDefaultTargetConnectionFactory(connectionFactories[READ_WRITE]!!)
-
-        return clusterConnectionFactory
-    }
-
-    @Bean
     fun auditorAware(): ReactiveAuditorAware<String> {
         return ReactiveAuditorAware {
             ReactiveSecurityContextHolder
@@ -54,18 +41,30 @@ class R2dbcConfiguration(
         return DateTimeProvider { of(now()) }
     }
 
-    private fun primaryConnectionFactory(): ConnectionFactory {
+    @Bean
+    override fun connectionFactory(): ConnectionFactory {
+        val connectionFactories = mutableMapOf(
+            READ_WRITE to primaryConnectionFactory(),
+            READ_ONLY to readOnlyConnectionFactory()
+        )
+        val clusterConnectionFactory = ClusterConnectionFactory()
+        clusterConnectionFactory.setTargetConnectionFactories(connectionFactories)
+        clusterConnectionFactory.setDefaultTargetConnectionFactory(connectionFactories[READ_WRITE]!!)
+
+        return clusterConnectionFactory
+    }
+
+    private fun primaryConnectionFactory(): ConnectionPool {
         return connectionPool(primaryProperties)
     }
 
-    private fun readOnlyConnectionFactory(): ConnectionFactory {
+    private fun readOnlyConnectionFactory(): ConnectionPool {
         return connectionPool(readonlyProperties)
     }
 
     private fun connectionPool(properties: R2dbcProperties): ConnectionPool {
         val options = builder()
             .from(parse(properties.url))
-            .option(DATABASE, properties.name)
             .option(USER, properties.username)
             .option(PASSWORD, properties.password)
             .build()
@@ -73,10 +72,14 @@ class R2dbcConfiguration(
         val pool = properties.pool
         val configuration = ConnectionPoolConfiguration
             .builder(factory)
+            .name(properties.name)
             .initialSize(pool.initialSize)
             .maxSize(pool.maxSize)
             .build()
 
-        return ConnectionPool(configuration)
+        return ConnectionPool(configuration).apply {
+            create().subscribe()
+            warmup().subscribe()
+        }
     }
 }

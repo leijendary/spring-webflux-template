@@ -12,7 +12,7 @@ import com.leijendary.spring.webflux.template.core.config.properties.R2dbcBatchP
 import com.leijendary.spring.webflux.template.core.data.Seek
 import com.leijendary.spring.webflux.template.core.data.Seekable
 import com.leijendary.spring.webflux.template.core.exception.ResourceNotFoundException
-import com.leijendary.spring.webflux.template.core.factory.ClusterConnectionFactory.Companion.readOnlyContext
+import com.leijendary.spring.webflux.template.core.extension.readOnlyContext
 import com.leijendary.spring.webflux.template.core.factory.SeekFactory
 import com.leijendary.spring.webflux.template.core.util.ReactiveUUID
 import com.leijendary.spring.webflux.template.entity.SampleTableTranslation
@@ -57,7 +57,7 @@ class SampleTableService(
 
         return flow
             .asFlux()
-            .contextWrite { readOnlyContext(it) }
+            .readOnlyContext()
             .subscribeOn(boundedElastic())
             .asFlow()
             .toList(mutableListOf())
@@ -93,7 +93,7 @@ class SampleTableService(
         }
 
         val sampleTable = mono { sampleTableRepository.get(id) }
-            .contextWrite { readOnlyContext(it) }
+            .readOnlyContext()
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .subscribeOn(boundedElastic())
             .awaitSingle()
@@ -108,7 +108,7 @@ class SampleTableService(
 
     suspend fun update(id: UUID, sampleRequest: SampleRequest): SampleResponse {
         var sampleTable = mono { sampleTableRepository.get(id) }
-            .contextWrite { readOnlyContext(it) }
+            .readOnlyContext()
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .subscribeOn(boundedElastic())
             .awaitSingle()
@@ -132,7 +132,7 @@ class SampleTableService(
 
     suspend fun delete(id: UUID) {
         val sampleTable = mono { sampleTableRepository.get(id) }
-            .contextWrite { readOnlyContext(it) }
+            .readOnlyContext()
             .switchIfEmpty { throw ResourceNotFoundException(SOURCE, id) }
             .subscribeOn(boundedElastic())
             .awaitSingle()
@@ -151,7 +151,7 @@ class SampleTableService(
         sampleTableRepository
             .findAllByDeletedAtIsNull()
             .asFlux()
-            .contextWrite { readOnlyContext(it) }
+            .readOnlyContext()
             .buffer(r2dbcBatchProperties.size)
             .onBackpressureBuffer()
             .parallel()
@@ -177,7 +177,7 @@ class SampleTableService(
         return sampleTableTranslationRepository
             .findByReferenceId(referenceId)
             .asFlux()
-            .contextWrite { readOnlyContext(it) }
+            .readOnlyContext()
             .subscribeOn(boundedElastic())
             .asFlow()
             .toList(mutableListOf())

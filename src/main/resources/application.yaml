@@ -71,7 +71,7 @@ spring:
         enabled: false
   r2dbc:
     primary:
-      name:
+      name: primary
       url:
       username:
       password:
@@ -79,7 +79,7 @@ spring:
         initialSize: 10
         maxSize: 20
     readonly:
-      name:
+      name: readonly
       url:
       username:
       password:

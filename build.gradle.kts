@@ -1,28 +1,7 @@
 import org.gradle.api.file.DuplicatesStrategy.INCLUDE
 
-val springVersion: String by project
-val starterAwsVersion: String by project
-val starterLoadBalancerVersion: String by project
-val starterSleuthVersion: String by project
-val starterStreamVersion: String by project
-val jacksonVersion: String by project
-val reactorKotlinVersion: String by project
-val kotlinxVersion: String by project
-val liquibaseVersion: String by project
-val mapstructVersion: String by project
-val springJdbcVersion: String by project
-val openapiVersion: String by project
-val r2dbcPostgresqlVersion: String by project
-val postgresqlVersion: String by project
-val reactorTestVersion: String by project
-val blockhoundVersion: String by project
-val springCloudVersion: String by project
-val prometheusVersion: String by project
-val opentelemetryVersion: String by project
-val springCloudOtelVersion: String by project
-
 plugins {
-    id("org.springframework.boot") version "2.7.0"
+    id("org.springframework.boot") version "2.7.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.jetbrains.kotlin.plugin.noarg") version "1.6.21"
     id("org.barfuin.gradle.jacocolog") version "2.0.0"
@@ -32,7 +11,7 @@ plugins {
 }
 
 group = "com.leijendary.spring"
-version = "0.0.1-SNAPSHOT"
+version = "1.0.0"
 description = "Spring WebFlux Template for the Microservice Architecture or general purpose"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
@@ -56,16 +35,16 @@ kapt {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator:$springVersion")
-    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:$springVersion")
-    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:$springVersion")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:$springVersion")
-    implementation("org.springframework.boot:spring-boot-starter-security:$springVersion")
-    implementation("org.springframework.boot:spring-boot-starter-validation:$springVersion")
-    implementation("org.springframework.boot:spring-boot-starter-webflux:$springVersion")
-    implementation("org.springframework.cloud:spring-cloud-starter-aws:$starterAwsVersion")
-    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:$starterLoadBalancerVersion")
-    implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$starterSleuthVersion") {
+    implementation("org.springframework.boot:spring-boot-starter-actuator:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-security:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-validation:2.7.2")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:2.7.2")
+    implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:3.1.3")
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth:3.1.3") {
         configurations {
             all {
                 exclude("org.springframework.cloud", "spring-cloud-sleuth-brave")
@@ -74,39 +53,39 @@ dependencies {
         }
     }
     implementation("org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure")
-    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:$starterStreamVersion")
-    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:$starterStreamVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:$reactorKotlinVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka:3.2.4")
+    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams:3.2.4")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.7")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$kotlinxVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinxVersion")
-    implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-    implementation("org.mapstruct:mapstruct:$mapstructVersion")
-    implementation("org.springframework:spring-jdbc:$springJdbcVersion")
-    implementation("org.springdoc:springdoc-openapi-webflux-ui:$openapiVersion")
-    implementation("io.r2dbc:r2dbc-postgresql:$r2dbcPostgresqlVersion")
-    implementation("io.opentelemetry:opentelemetry-extension-kotlin:$opentelemetryVersion")
-    implementation("io.opentelemetry:opentelemetry-extension-trace-propagators:$opentelemetryVersion")
-    implementation("io.opentelemetry:opentelemetry-exporter-jaeger:$opentelemetryVersion")
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp-common:$opentelemetryVersion")
-    developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus:$prometheusVersion")
-    runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
-    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$kotlinxVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springVersion")
-    testImplementation("io.projectreactor:reactor-test:$reactorTestVersion")
-    testImplementation("io.projectreactor.tools:blockhound:$blockhoundVersion")
-    kapt("org.mapstruct:mapstruct-processor:$mapstructVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
+    implementation("org.liquibase:liquibase-core:4.14.0")
+    implementation("org.mapstruct:mapstruct:1.5.2.Final")
+    implementation("org.springframework:spring-jdbc:5.3.22")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.9")
+    implementation("io.r2dbc:r2dbc-postgresql:0.8.12.RELEASE")
+    implementation("io.opentelemetry:opentelemetry-extension-kotlin:1.16.0")
+    implementation("io.opentelemetry:opentelemetry-extension-trace-propagators:1.16.0")
+    implementation("io.opentelemetry:opentelemetry-exporter-jaeger:1.16.0")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp-common:1.16.0")
+    developmentOnly("org.springframework.boot:spring-boot-devtools:2.7.2")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus:1.9.2")
+    runtimeOnly("org.postgresql:postgresql:42.3.6")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.7.2")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.2.Final")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.7.2")
+    testImplementation("io.projectreactor:reactor-test:3.4.21")
+    testImplementation("io.projectreactor.tools:blockhound:1.0.6.RELEASE")
+    kapt("org.mapstruct:mapstruct-processor:1.5.2.Final")
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
-        mavenBom("org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:$springCloudOtelVersion")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2021.0.3")
+        mavenBom("org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:1.1.0-M6")
     }
 }
 

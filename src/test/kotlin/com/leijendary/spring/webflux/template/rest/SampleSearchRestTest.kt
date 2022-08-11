@@ -9,7 +9,7 @@ import com.leijendary.spring.webflux.template.core.extension.scaled
 import com.leijendary.spring.webflux.template.core.extension.toClass
 import com.leijendary.spring.webflux.template.core.util.HEADER_SCOPE
 import com.leijendary.spring.webflux.template.core.util.HEADER_USER_ID
-import liquibase.repackaged.org.apache.commons.lang3.RandomStringUtils
+import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource

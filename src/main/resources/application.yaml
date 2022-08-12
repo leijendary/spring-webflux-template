@@ -77,7 +77,7 @@ spring:
       password:
       pool:
         initialSize: 10
-        maxSize: 20
+        maxSize: 10
     readonly:
       name: readonly
       url:
@@ -85,7 +85,7 @@ spring:
       password:
       pool:
         initialSize: 5
-        maxSize: 10
+        maxSize: 5
     batch:
       size: 1000
   liquibase:

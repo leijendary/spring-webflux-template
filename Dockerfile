@@ -3,7 +3,6 @@ WORKDIR /workspace/app
 COPY src src
 COPY gradle gradle
 COPY build.gradle.kts .
-COPY gradle.properties .
 COPY gradlew .
 COPY settings.gradle.kts .
 RUN --mount=type=cache,target=/root/.m2 ./gradlew build -x test

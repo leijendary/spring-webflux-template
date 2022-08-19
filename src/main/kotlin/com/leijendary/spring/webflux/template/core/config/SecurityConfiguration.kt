@@ -13,6 +13,9 @@ class SecurityConfiguration {
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
+            .headers()
+            .and()
+            .csrf().disable()
             .authorizeExchange()
             .anyExchange().permitAll()
             .and()
@@ -20,7 +23,6 @@ class SecurityConfiguration {
             .httpBasic().disable()
             .formLogin().disable()
             .logout().disable()
-            .csrf().disable()
             .exceptionHandling()
             .authenticationEntryPoint { _, ex -> throw ex }
             .accessDeniedHandler { _, ex -> throw ex }

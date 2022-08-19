@@ -18,8 +18,10 @@ import org.springframework.data.domain.ReactiveAuditorAware
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
+import java.time.Duration.ofMillis
 import java.time.LocalDateTime.now
 import java.util.Optional.of
+import kotlin.Long.Companion.MAX_VALUE
 
 @Configuration
 @EnableR2dbcAuditing(auditorAwareRef = "auditorAware", dateTimeProviderRef = "dateTimeProvider")
@@ -75,11 +77,9 @@ class R2dbcConfiguration(
             .name(properties.name)
             .initialSize(pool.initialSize)
             .maxSize(pool.maxSize)
+            .maxLifeTime(ofMillis(MAX_VALUE))
             .build()
 
-        return ConnectionPool(configuration).apply {
-            create().subscribe()
-            warmup().subscribe()
-        }
+        return ConnectionPool(configuration)
     }
 }

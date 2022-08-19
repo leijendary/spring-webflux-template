@@ -77,7 +77,7 @@ spring:
       password:
       pool:
         initialSize: 10
-        maxSize: 10
+        maxSize: 20
     readonly:
       name: readonly
       url:
@@ -85,7 +85,7 @@ spring:
       password:
       pool:
         initialSize: 5
-        maxSize: 5
+        maxSize: 10
     batch:
       size: 1000
   liquibase:
@@ -129,29 +129,23 @@ spring:
       definition: sampleCreate;sampleUpdate;sampleDelete;sampleCreated;sampleUpdated;sampleDeleted
     stream:
       bindings:
-        sampleCreate-out-0:
-          destination: \${info.app.organization}.sample.create
         sampleCreated-in-0:
           destination: \${info.app.organization}.sample.create
-        sampleUpdate-out-0:
-          destination: \${info.app.organization}.sample.update
+        sampleCreate-out-0:
+          destination: \${info.app.organization}.sample.create
         sampleUpdated-in-0:
           destination: \${info.app.organization}.sample.update
-        sampleDelete-out-0:
-          destination: \${info.app.organization}.sample.delete
+        sampleUpdate-out-0:
+          destination: \${info.app.organization}.sample.update
         sampleDeleted-in-0:
           destination: \${info.app.organization}.sample.delete
-      default:
-        group: \${info.app.name}
+        sampleDelete-out-0:
+          destination: \${info.app.organization}.sample.delete
       kafka:
         binder:
           autoAddPartitions: true
-        default:
-          consumer:
-            enableDlq: true
         streams:
           binder:
-            deserializationExceptionHandler: sendToDlq
             functions:
               sampleCreate:
                 applicationId: \${info.app.name}.\${spring.cloud.stream.bindings.sampleCreate-out-0.destination}
@@ -172,6 +166,13 @@ spring:
     properties:
       interceptor:
         classes: com.leijendary.spring.webflux.template.core.interceptor.KafkaLoggingInterceptor
+    producer:
+      properties:
+        spring:
+          json:
+            add:
+              type:
+                headers: false
   redis:
     host:
     port:

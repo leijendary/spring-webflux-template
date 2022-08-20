@@ -6,8 +6,9 @@ import com.leijendary.spring.webflux.template.api.v1.mapper.SampleMapper
 import com.leijendary.spring.webflux.template.api.v1.search.SampleSearch
 import com.leijendary.spring.webflux.template.core.cache.ReactiveRedisCache
 import com.leijendary.spring.webflux.template.message.SampleMessageProducer
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,43 +23,52 @@ class SampleEvent(
 
     suspend fun create(sampleResponse: SampleResponse) = coroutineScope {
         val id = sampleResponse.id
-
-        launch {
+        val cache = async {
             reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
-
+        }
+        val message = async {
             val sampleMessage = MAPPER.toMessage(sampleResponse)
 
             sampleMessageProducer.create(sampleMessage)
-
+        }
+        val search = async {
             sampleSearch.save(sampleResponse)
         }
+
+        awaitAll(cache, message, search)
     }
 
     suspend fun update(sampleResponse: SampleResponse) = coroutineScope {
         val id = sampleResponse.id
-
-        launch {
+        val cache = async {
             reactiveRedisCache.set("$CACHE_KEY:$id", sampleResponse)
-
+        }
+        val message = async {
             val sampleMessage = MAPPER.toMessage(sampleResponse)
 
             sampleMessageProducer.update(sampleMessage)
-
+        }
+        val search = async {
             sampleSearch.update(sampleResponse)
         }
+
+        awaitAll(cache, message, search)
     }
 
     suspend fun delete(sampleResponse: SampleResponse) = coroutineScope {
         val id = sampleResponse.id
-
-        launch {
+        val cache = async {
             reactiveRedisCache.delete("$CACHE_KEY:$id")
-
+        }
+        val message = async {
             val sampleMessage = MAPPER.toMessage(sampleResponse)
 
             sampleMessageProducer.delete(sampleMessage)
-
+        }
+        val search = async {
             sampleSearch.delete(id)
         }
+
+        awaitAll(cache, message, search)
     }
 }

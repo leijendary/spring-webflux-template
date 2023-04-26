@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 env:
   REPOSITORY_URL: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ github.event.repository.name }}
@@ -10,6 +10,7 @@ jobs:
   docker:
     name: Tag Image
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     environment: production
     steps:
       - name: Checkout

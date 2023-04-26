@@ -16,6 +16,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout

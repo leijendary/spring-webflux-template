@@ -10,7 +10,7 @@ jobs:
   docker:
     name: Tag Image
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
     environment: production
     steps:
       - name: Checkout
